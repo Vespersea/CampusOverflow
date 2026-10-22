@@ -8,6 +8,7 @@ import com.campusoverflow.qa.domain.CommentRepository;
 import com.campusoverflow.qa.domain.Question;
 import com.campusoverflow.qa.domain.QuestionRepository;
 import com.campusoverflow.qa.domain.TargetType;
+import com.campusoverflow.shared.domain.BusinessRuleException;
 import com.campusoverflow.shared.domain.NotFoundException;
 import com.campusoverflow.shared.event.EventIds;
 import com.campusoverflow.shared.event.IntegrationEventPublisher;
@@ -37,7 +38,37 @@ public class CommentService {
 
     @Transactional
     public long post(Actor actor, PostCommentCommand cmd) {
-        // TODO(S2)：实现 CommentService.post——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：CommentService.post 尚未实现");
+        long questionId = resolveQuestionId(cmd);
+        Comment parent = null;
+        if (cmd.parentId() != null) {
+            parent = comments.findById(cmd.parentId())
+                    .orElseThrow(() -> new NotFoundException("QA-4003", "父评论不存在"));
+        }
+        Comment comment = Comment.post(cmd.targetType(), cmd.targetId(), questionId, actor.userId(), parent,
+                cmd.body(), clock.instant());
+        Comment saved = comments.save(comment);
+        events.publish(new CommentPostedEvent(EventIds.next(), clock.instant(), saved.id(), questionId,
+                actor.userId(), saved.body()));
+        return saved.id();
+    }
+
+    /** 校验评论目标存在（且未删除），返回所属问题 ID。 */
+    private long resolveQuestionId(PostCommentCommand cmd) {
+        return switch (cmd.targetType()) {
+            case QUESTION -> {
+                Question q = questions.findById(cmd.targetId())
+                        .orElseThrow(() -> new NotFoundException("QA-4001", "问题不存在"));
+                q.ensureOpenForAnswers();
+                yield cmd.targetId();
+            }
+            case ANSWER -> {
+                Answer a = answers.findById(cmd.targetId())
+                        .orElseThrow(() -> new NotFoundException("QA-4002", "回答不存在"));
+                if (a.isDeleted()) {
+                    throw new BusinessRuleException("QA-1014", "该回答已删除");
+                }
+                yield a.questionId();
+            }
+        };
     }
 }
