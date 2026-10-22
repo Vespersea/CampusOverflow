@@ -6,7 +6,6 @@ import com.campusoverflow.discovery.domain.notification.NotificationType;
 import com.campusoverflow.shared.page.PageRequest;
 import com.campusoverflow.shared.page.PageResult;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -37,14 +36,18 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
         return n;
     }
 
+    // 这里修改：参数 long id → Long id
     @Override
-    public Optional<Notification> findById(long id) {
+    public Optional<Notification> findById(Long id) {
+        if (id == null) {
+            return Optional.empty();
+        }
         return jpa.findById(id).map(NotificationRepositoryAdapter::toDomain);
     }
 
     @Override
     public PageResult<Notification> findByRecipient(long recipientId, PageRequest page) {
-        Page<NotificationJpaEntity> p = jpa.findByRecipientIdOrderByIdDesc(recipientId,
+        org.springframework.data.domain.Page<NotificationJpaEntity> p = jpa.findByRecipientIdOrderByIdDesc(recipientId,
                 org.springframework.data.domain.PageRequest.of(page.page() - 1, page.size()));
         return new PageResult<>(p.getContent().stream().map(NotificationRepositoryAdapter::toDomain).toList(),
                 p.getTotalElements(), page.page(), page.size());
