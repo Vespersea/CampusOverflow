@@ -6,6 +6,7 @@ import com.campusoverflow.reputation.api.event.ReputationChangedEvent;
 import com.campusoverflow.reputation.domain.ReputationAccountRepository;
 import com.campusoverflow.shared.event.ProcessedEventStore;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +36,35 @@ public class LeaderboardService {
     @EventListener
     @Transactional
     public void on(ReputationChangedEvent e) {
-        // TODO(S3)：实现 LeaderboardService.on——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S3)：LeaderboardService.on 尚未实现");
+        if (!processed.markProcessed(e.eventId(), "leaderboard")) {
+            return;
+        }
+        store.increment(e.userId(), e.delta(), e.occurredAt());
     }
 
     @Transactional(readOnly = true)
     public List<LeaderboardEntryView> top(LeaderboardPeriod period, int limit) {
-        // TODO(S3)：实现 LeaderboardService.top——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S3)：LeaderboardService.top 尚未实现");
+        Instant now = clock.instant();
+        List<LeaderboardStore.Entry> entries;
+        if (period == LeaderboardPeriod.ALL) {
+            entries = accounts.topByReputation(limit).stream()
+                    .map(a -> new LeaderboardStore.Entry(a.userId(), a.reputation()))
+                    .toList();
+        } else {
+            entries = store.top(period, now, limit);
+        }
+        Map<Long, UserSummary> users = identity.findUsers(
+                entries.stream().map(LeaderboardStore.Entry::userId).toList());
+        List<LeaderboardEntryView> result = new ArrayList<>();
+        for (int i = 0; i < entries.size(); i++) {
+            LeaderboardStore.Entry entry = entries.get(i);
+            UserSummary user = users.get(entry.userId());
+            if (user == null) {
+                continue;
+            }
+            result.add(new LeaderboardEntryView(i + 1, entry.userId(), user.displayName(), user.verified(),
+                    entry.score()));
+        }
+        return result;
     }
 }
