@@ -1,6 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="17" />
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="co-discovery-infrastructure" />
+        <module name="co-identity-api" />
+        <module name="co-identity-infrastructure" />
+        <module name="co-discovery-application" />
+        <module name="co-bootstrap" />
+        <module name="co-discovery-domain" />
+        <module name="co-discovery-interfaces" />
+        <module name="co-reputation-domain" />
+        <module name="co-identity-application" />
+        <module name="co-identity-domain" />
+        <module name="co-reputation-api" />
+        <module name="co-qa-api" />
+        <module name="co-qa-interfaces" />
+        <module name="co-reputation-interfaces" />
+        <module name="co-shared-kernel" />
+        <module name="co-reputation-infrastructure" />
+        <module name="co-reputation-application" />
+        <module name="co-discovery-api" />
+        <module name="co-qa-domain" />
+        <module name="co-identity-interfaces" />
+        <module name="co-qa-infrastructure" />
+        <module name="co-qa-application" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="co-bootstrap" options="-parameters" />
+      <module name="co-discovery-api" options="-parameters" />
+      <module name="co-discovery-application" options="-parameters" />
+      <module name="co-discovery-domain" options="-parameters" />
+      <module name="co-discovery-infrastructure" options="-parameters" />
+      <module name="co-discovery-interfaces" options="-parameters" />
+      <module name="co-identity-api" options="-parameters" />
+      <module name="co-identity-application" options="-parameters" />
+      <module name="co-identity-domain" options="-parameters" />
+      <module name="co-identity-infrastructure" options="-parameters" />
+      <module name="co-identity-interfaces" options="-parameters" />
+      <module name="co-qa-api" options="-parameters" />
+      <module name="co-qa-application" options="-parameters" />
+      <module name="co-qa-domain" options="-parameters" />
+      <module name="co-qa-infrastructure" options="-parameters" />
+      <module name="co-qa-interfaces" options="-parameters" />
+      <module name="co-reputation-api" options="-parameters" />
+      <module name="co-reputation-application" options="-parameters" />
+      <module name="co-reputation-domain" options="-parameters" />
+      <module name="co-reputation-infrastructure" options="-parameters" />
+      <module name="co-reputation-interfaces" options="-parameters" />
+      <module name="co-shared-kernel" options="-parameters" />
+    </option>
   </component>
 </project>
