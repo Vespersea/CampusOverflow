@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>CampusOverflow 事件风暴白板</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; }
+  body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: #e8ebf0; color: #1f2328; }
+  .board-header {
+    background: #232733; color: #fff; padding: 12px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .board-header .name { font-size: 17px; font-weight: 700; }
+  .board-header .sub { font-size: 12px; color: #aeb4c2; margin-top: 2px; }
+  .board-header .avs { display: flex; gap: 6px; }
+  .avs .a { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .canvas {
+    position: relative; width: 1600px; height: 1370px;
+    background-image: radial-gradient(circle, #c9ced8 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .title-note {
+    position: absolute; left: 36px; top: 24px; background: #ffd43b; border: 1px solid #e8b60a;
+    border-radius: 4px; padding: 12px 18px; font-size: 16px; font-weight: 700; color: #3d3200;
+    box-shadow: 0 3px 8px rgba(0,0,0,.18); transform: rotate(-1deg);
+  }
+  .timeline { position: absolute; left: 40px; top: 106px; width: 1560px; }
+  .timeline .axis { position: absolute; left: 0; top: 14px; width: 1500px; height: 3px; background: #8b93a5; }
+  .timeline .arrow { position: absolute; right: 60px; top: 3px; border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-left: 20px solid #8b93a5; }
+  .timeline .lbl { position: absolute; left: 6px; top: -8px; font-size: 14px; font-weight: 700; color: #4a5264; }
+  .flow { position: absolute; left: 40px; width: 900px; }
+  .row { position: absolute; left: 0; width: 900px; display: flex; align-items: center; }
+  .arrow-sep { font-size: 18px; color: #6b7280; font-weight: 700; margin: 0 6px; }
+  .note {
+    border-radius: 3px; padding: 7px 10px; font-size: 12px; line-height: 1.35;
+    box-shadow: 0 3px 7px rgba(0,0,0,.16); width: 96px; min-height: 58px;
+  }
+  .note .t { font-weight: 700; font-size: 12px; margin-bottom: 2px; }
+  .note.role { background: #ffd43b; border: 1px solid #e8b60a; color: #3d3200; width: 100px; }
+  .note.cmd { background: #74c0fc; border: 1px solid #3d8fd4; color: #0b3a63; width: 148px; }
+  .note.evt { background: #ffa94d; border: 1px solid #e07b1f; color: #5c2e00; width: 186px; }
+  .note.res { background: #b2f2bb; border: 1px solid #5cb56a; color: #0b3d16; width: 268px; }
+  .note.ext { background: #faa2c1; border: 1px solid #d66694; color: #5c0a2b; width: 268px; }
+  .rot-l { transform: rotate(-1.1deg); }
+  .rot-r { transform: rotate(1.1deg); }
+  .rot-0 { transform: rotate(0.3deg); }
+  .hs-panel { position: absolute; left: 1000px; top: 44px; width: 560px; }
+  .hs-title {
+    display: inline-block; background: #ff6b6b; color: #fff; border-radius: 4px;
+    padding: 6px 14px; font-size: 14px; font-weight: 700; margin-bottom: 10px;
+    box-shadow: 0 3px 7px rgba(0,0,0,.18); transform: rotate(-0.8deg);
+  }
+  .hs-grid { display: grid; grid-template-columns: 270px 270px; gap: 10px; }
+  .hs {
+    background: #ff6b6b; border: 1px solid #d64545; color: #5c0a0a; border-radius: 3px;
+    padding: 8px 10px; font-size: 11.5px; line-height: 1.4; box-shadow: 0 3px 7px rgba(0,0,0,.16);
+  }
+  .hs .t { font-weight: 700; font-size: 12px; margin-bottom: 3px; }
+  .legend { position: absolute; left: 36px; bottom: 16px; display: flex; gap: 14px; align-items: center; background: #fff; border-radius: 8px; padding: 10px 16px; box-shadow: 0 2px 8px rgba(0,0,0,.12); font-size: 12.5px; }
+  .legend .chip { display: inline-flex; align-items: center; gap: 5px; }
+  .legend .sw { width: 16px; height: 16px; border-radius: 3px; display: inline-block; border: 1px solid rgba(0,0,0,.25); }
+  .ext-note-pos { position: absolute; left: 1000px; bottom: 16px; }
+</style>
+</head>
+<body>
+  <div class="board-header">
+    <div>
+      <div class="name">CampusOverflow · 事件风暴工作坊(Event Storming)</div>
+      <div class="sub">第 5 教学周周三晚 20:00–22:30(2.5 小时)· 线上白板(Miro)· Big Picture + Process Modeling + Software Design</div>
+    </div>
+    <div class="avs">
+      <span class="a" style="background:#8250df">张</span><span class="a" style="background:#0969da">李</span><span class="a" style="background:#1a7f37">王</span><span class="a" style="background:#bc4c00">赵</span>
+    </div>
+  </div>
+
+  <div class="canvas">
+    <div class="title-note">🎯 CampusOverflow 事件风暴 — 主流程(命令 → 事件 → 下游)</div>
+    <div class="timeline">
+      <div class="lbl">⏱ 时间线</div>
+      <div class="axis"></div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="flow">
+      <div class="row" style="top:140px">
+        <div class="note role rot-l"><div class="t">访客(学生)</div>未注册用户</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-r"><div class="t">RegisterUser</div>注册命令</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-l"><div class="t">UserRegistered</div>过去时 · 注册成功即发</div><span class="arrow-sep">→</span>
+        <div class="note res rot-r"><div class="t">声誉账户开户</div>教师角色发 1000 悬赏积分</div>
+      </div>
+      <div class="row" style="top:232px">
+        <div class="note role rot-0"><div class="t">学生</div>已登录用户</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-l"><div class="t">Login</div>学号/工号 + 密码</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-r"><div class="t">UserLoggedIn</div>仅用于审计(ADR-003)</div><span class="arrow-sep">→</span>
+        <div class="note res rot-0"><div class="t">审计日志</div>会话由 co-bootstrap 维护</div>
+      </div>
+      <div class="row" style="top:324px">
+        <div class="note role rot-r"><div class="t">学生</div>提问者</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-0"><div class="t">PostQuestion</div>标题/Markdown/标签</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-l"><div class="t">QuestionPosted</div>与写入同事务进发件箱</div><span class="arrow-sep">→</span>
+        <div class="note res rot-r"><div class="t">QuestionIndexed</div>搜索投影新增文档 + 列表读模型</div>
+      </div>
+      <div class="row" style="top:416px">
+        <div class="note role rot-l"><div class="t">学生</div>回答者</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-r"><div class="t">SubmitAnswer</div>Markdown 正文</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-r"><div class="t">AnswerSubmitted</div>触发徽章检查</div><span class="arrow-sep">→</span>
+        <div class="note res rot-l"><div class="t">新回答通知</div>FIRST_ANSWER 徽章检查 + 详情读模型</div>
+      </div>
+      <div class="row" style="top:508px">
+        <div class="note role rot-0"><div class="t">学生</div>评论者</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-l"><div class="t">PostComment</div>@昵称解析</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-0"><div class="t">CommentPosted</div>可挂问题或回答</div><span class="arrow-sep">→</span>
+        <div class="note res rot-r"><div class="t">UserMentioned</div>MENTIONED 通知(≤5 人)</div>
+      </div>
+      <div class="row" style="top:600px">
+        <div class="note role rot-r"><div class="t">学生</div>投票者</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-0"><div class="t">CastVote</div>赞/踩/改投/撤销</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-l"><div class="t">VoteCast</div>value ∈ {1,−1,0}</div><span class="arrow-sep">→</span>
+        <div class="note res rot-0"><div class="t">ReputationChanged</div>+10 / −2,按增量计,日上限 200</div>
+      </div>
+      <div class="row" style="top:692px">
+        <div class="note role rot-l"><div class="t">提问者 / 教师</div>课程管理者</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-r"><div class="t">AcceptAnswer</div>采纳最佳答案</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-r"><div class="t">AnswerAccepted</div>一个采纳触发多个下游</div><span class="arrow-sep">→</span>
+        <div class="note res rot-l"><div class="t">+15 声誉 + 悬赏结算</div>通知 + 搜索投影更新(自答 0 分)</div>
+      </div>
+      <div class="row" style="top:784px">
+        <div class="note role rot-0"><div class="t">课程教师</div>权威背书</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-l"><div class="t">EndorseAnswer</div>教师认证</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-0"><div class="t">AnswerEndorsed</div>不可撤销</div><span class="arrow-sep">→</span>
+        <div class="note res rot-r"><div class="t">BadgeAwarded</div>TEACHER_ENDORSED 徽章 → 通知</div>
+      </div>
+      <div class="row" style="top:876px">
+        <div class="note role rot-r"><div class="t">课程管理者</div>教师/助教</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-0"><div class="t">OpenBounty</div>10–500 积分</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-l"><div class="t">BountyOpened</div>发起即冻结积分</div><span class="arrow-sep">→</span>
+        <div class="note res rot-0"><div class="t">冻结积分</div>1–14 天有效期 + 通知问题作者</div>
+      </div>
+      <div class="row" style="top:968px">
+        <div class="note role rot-l"><div class="t">系统定时任务</div>到期扫描</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-r"><div class="t">到期扫描</div>发现到期悬赏</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-r"><div class="t">BountyExpired</div>OPEN → EXPIRED</div><span class="arrow-sep">→</span>
+        <div class="note res rot-l"><div class="t">BountyClosed(退款)</div>冻结积分退回发起人</div>
+      </div>
+      <div class="row" style="top:1060px">
+        <div class="note role rot-0"><div class="t">系统(策略)</div>徽章策略检查</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-l"><div class="t">AwardBadge</div>事件驱动</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-0"><div class="t">BadgeAwarded</div>6 种徽章</div><span class="arrow-sep">→</span>
+        <div class="note res rot-r"><div class="t">NotificationCreated</div>通知"获得徽章"</div>
+      </div>
+      <div class="row" style="top:1152px">
+        <div class="note role rot-r"><div class="t">系统(对账)</div>每日任务</div><span class="arrow-sep">→</span>
+        <div class="note cmd rot-0"><div class="t">每日对账</div>余额 = 流水之和</div><span class="arrow-sep">→</span>
+        <div class="note evt rot-l"><div class="t">ReputationReconciled</div>不一致告警</div><span class="arrow-sep">→</span>
+        <div class="note res rot-0"><div class="t">指标 co_reputation_mismatches</div>每日对账任务(FF-8)</div>
+      </div>
+    </div>
+
+    <div class="hs-panel">
+      <span class="hs-title">🔥 Hot Spot(工作坊遗留问题与决议)</span>
+      <div class="hs-grid">
+        <div class="hs rot-l"><div class="t">H-1 声誉反作弊</div>小号互刷 → 每人每日被投票正向上限 200,超出截断 + 审计(ADR-009)</div>
+        <div class="hs rot-r"><div class="t">H-2 事件幂等</div>至少一次投递 → 账本/通知唯一键 + processed_event 表(ADR-002/004)</div>
+        <div class="hs rot-0"><div class="t">H-3 自问自答</div>采纳不给分(acceptedDelta = 0),防止刷分</div>
+        <div class="hs rot-l"><div class="t">H-4 改投增量</div>"新效果 − 旧效果"计增量,负向不受每日上限约束</div>
+        <div class="hs rot-r"><div class="t">H-5 冻结模型</div>发起即冻结,采纳结算给胜者,到期/自答退款(ADR-009)</div>
+        <div class="hs rot-0"><div class="t">H-6 "一天"界定</div>UTC 自然日(与全库 UTC 一致),跨日自动重置</div>
+        <div class="hs rot-l"><div class="t">H-7 中文搜索</div>MySQL ngram(ngram_token_size=2),单关键词 ≥2 字符(ADR-005)</div>
+        <div class="hs rot-r"><div class="t">H-8 最终一致</div>发件箱异步投递,数百毫秒延迟,演示与文档需说明</div>
+      </div>
+    </div>
+
+    <div class="ext-note-pos">
+      <div class="note ext rot-l"><div class="t">外部系统(黄色,课程不实现)</div>邮件服务:预留 NotificationCreated 适配点 · OAuth 第三方登录:学号+密码已满足要求,保留扩展点</div>
+    </div>
+
+    <div class="legend">
+      <span class="chip"><span class="sw" style="background:#ffa94d"></span> 领域事件(橙色,过去时)</span>
+      <span class="chip"><span class="sw" style="background:#74c0fc"></span> 命令(蓝色,谁触发)</span>
+      <span class="chip"><span class="sw" style="background:#ffd43b"></span> 角色(黄色)</span>
+      <span class="chip"><span class="sw" style="background:#b2f2bb"></span> 读模型/下游(绿色)</span>
+      <span class="chip"><span class="sw" style="background:#faa2c1"></span> 外部系统(粉色)</span>
+      <span class="chip"><span class="sw" style="background:#ff6b6b"></span> Hot Spot(红色)</span>
+      <span class="chip" style="color:#6b7280">｜ 共 25 条领域事件,详见 docs/storming/event-storming.md</span>
+    </div>
+  </div>
+</body>
+</html>
