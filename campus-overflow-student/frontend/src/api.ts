@@ -16,6 +16,7 @@ export class ApiError extends Error {
     readonly status: number,
     readonly code: string,
     message: string,
+    readonly fieldErrors?: { field: string; message: string }[],
   ) {
     super(message);
   }
@@ -50,7 +51,10 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   const text = await res.text();
   const data = text ? JSON.parse(text) : undefined;
   if (!res.ok) {
-    throw new ApiError(res.status, data?.code ?? 'SYS-000', data?.detail ?? '请求失败');
+    const fieldErrors = Array.isArray(data?.errors)
+      ? (data.errors as { field: string; message: string }[])
+      : undefined;
+    throw new ApiError(res.status, data?.code ?? 'SYS-000', data?.detail ?? '请求失败', fieldErrors);
   }
   return data as T;
 }
