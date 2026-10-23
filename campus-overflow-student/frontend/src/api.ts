@@ -1,16 +1,31 @@
 import type {
-  LeaderboardEntry, Me, Notification, Page, QuestionDetail, QuestionSummary, ReputationProfile, SearchResult,
+  Bounty,
+  LeaderboardEntry,
+  Me,
+  Notification,
+  Page,
+  QuestionDetail,
+  QuestionSummary,
+  ReputationProfile,
+  SearchResult,
 } from './types';
 
 /** 后端以 RFC 9457 Problem Details 返回错误，这里统一转成带业务码的异常。 */
 export class ApiError extends Error {
-  constructor(readonly status: number, readonly code: string, message: string) {
+  constructor(
+    readonly status: number,
+    readonly code: string,
+    message: string,
+  ) {
     super(message);
   }
 }
 
 function cookie(name: string): string | undefined {
-  return document.cookie.split('; ').find((c) => c.startsWith(`${name}=`))?.split('=')[1];
+  return document.cookie
+    .split('; ')
+    .find((c) => c.startsWith(`${name}=`))
+    ?.split('=')[1];
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
@@ -26,7 +41,9 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     if (token) headers['X-XSRF-TOKEN'] = decodeURIComponent(token);
   }
   const res = await fetch(`/api${path}`, {
-    method, headers, credentials: 'include',
+    method,
+    headers,
+    credentials: 'include',
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (res.status === 204) return undefined as T;
@@ -43,7 +60,8 @@ const get = <T>(path: string) => request<T>('GET', path);
 export const api = {
   csrf: () => get<{ token: string }>('/v1/auth/csrf'),
   register: (body: Record<string, string>) => request<{ id: number }>('POST', '/v1/auth/register', body),
-  login: (username: string, password: string) => request<Me>('POST', '/v1/auth/login', { username, password }),
+  login: (username: string, password: string) =>
+    request<Me>('POST', '/v1/auth/login', { username, password }),
   logout: () => request<void>('POST', '/v1/auth/logout'),
   me: () => get<Me>('/v1/auth/me'),
 
@@ -71,13 +89,16 @@ export const api = {
     return get<Page<SearchResult>>(`/v1/search/questions?${search}`);
   },
   related: (questionId: number) =>
-    get<{ id: number; title: string; answerCount: number; accepted: boolean }[]>(`/v1/questions/${questionId}/related`),
+    get<{ id: number; title: string; answerCount: number; accepted: boolean }[]>(
+      `/v1/questions/${questionId}/related`,
+    ),
   popularTags: () => get<{ name: string; questionCount: number }[]>('/v1/tags/popular?limit=15'),
 
   leaderboard: (period: string) => get<LeaderboardEntry[]>(`/v1/leaderboard?period=${period}`),
   reputation: (userId: number) => get<ReputationProfile>(`/v1/users/${userId}/reputation`),
   bounty: (questionId: number, points: number, days: number) =>
     request<{ id: number }>('POST', `/v1/questions/${questionId}/bounty`, { points, days }),
+  bountyLatest: (questionId: number) => get<Bounty>(`/v1/questions/${questionId}/bounty`),
 
   notifications: () => get<Page<Notification>>('/v1/notifications'),
   unreadCount: () => get<{ count: number }>('/v1/notifications/unread-count'),

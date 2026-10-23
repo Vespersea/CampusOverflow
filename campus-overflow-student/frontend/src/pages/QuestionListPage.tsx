@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { useAuth } from '../auth';
@@ -13,25 +13,42 @@ export function QuestionListPage() {
   const [sort, setSort] = useState('newest');
   const [unanswered, setUnanswered] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.popularTags().then(setTags).catch(() => undefined);
+    api
+      .popularTags()
+      .then(setTags)
+      .catch(() => undefined);
   }, []);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     const searching = keyword.trim() !== '' || activeTag || unanswered || sort !== 'newest';
     const promise = searching
       ? api.search(keyword.trim(), { tag: activeTag, sort, unanswered })
       : api.questions(1);
-    promise.then((r) => { setData(r); setError(''); }).catch((e) => setError(e.message));
+    promise
+      .then((r) => {
+        setData(r);
+        setError('');
+      })
+      .catch((e) => setError(e instanceof Error ? e.message : '加载失败'))
+      .finally(() => setLoading(false));
   }, [keyword, activeTag, sort, unanswered]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <div className="layout">
       <section>
         <div className="toolbar">
-          <input placeholder="搜索问题（支持中文全文检索）" value={keyword}
-                 onChange={(e) => setKeyword(e.target.value)} />
+          <input
+            placeholder="搜索问题（支持中文全文检索）"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
           <select value={sort} onChange={(e) => setSort(e.target.value)}>
             <option value="newest">最新</option>
             <option value="active">最近活跃</option>
@@ -42,7 +59,11 @@ export function QuestionListPage() {
             <input type="checkbox" checked={unanswered} onChange={(e) => setUnanswered(e.target.checked)} />
             仅看未回答
           </label>
-          {me && <Link className="primary" to="/ask">我要提问</Link>}
+          {me && (
+            <Link className="primary" to="/ask">
+              我要提问
+            </Link>
+          )}
         </div>
 
         {activeTag && (
@@ -50,30 +71,73 @@ export function QuestionListPage() {
             标签筛选：<b>{activeTag}</b> <button onClick={() => setActiveTag(undefined)}>清除</button>
           </p>
         )}
-        {error && <p className="error">{error}</p>}
+        {error && (
+          <p className="error">
+            {error}{' '}
+            <button
+              onClick={() => {
+                setLoading(true);
+                load();
+              }}
+            >
+              重试
+            </button>
+          </p>
+        )}
 
-        <ul className="qlist">
-          {data?.items.map((q) => (
-            <li key={q.id}>
-              <div className="stats">
-                <span><b>{q.score}</b> 票</span>
-                <span className={q.accepted ? 'accepted' : ''}><b>{q.answerCount}</b> 回答</span>
-                <span>{q.viewCount} 浏览</span>
-              </div>
-              <div className="qmain">
-                <Link className="qtitle" to={`/questions/${q.id}`}>{q.title}</Link>
-                <p className="excerpt">{q.excerpt}</p>
-                <div className="tagrow">
-                  {q.tags.map((t) => <button key={t} className="tag" onClick={() => setActiveTag(t)}>{t}</button>)}
-                  <span className="muted">
-                    {q.author.displayName} · {new Date(q.createdAt).toLocaleString('zh-CN')}
-                  </span>
+        {loading && (
+          <ul className="qlist" aria-label="加载中">
+            {[0, 1, 2, 3].map((i) => (
+              <li key={i} className="skeleton">
+                <div className="stats">
+                  <span className="sk" />
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-        {data && data.items.length === 0 && <p className="muted">没有匹配的问题，换个关键词试试。</p>}
+                <div className="qmain">
+                  <span className="sk wide" />
+                  <span className="sk" />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {!loading && (
+          <ul className="qlist">
+            {data?.items.map((q) => (
+              <li key={q.id}>
+                <div className="stats">
+                  <span>
+                    <b>{q.score}</b> 票
+                  </span>
+                  <span className={q.accepted ? 'accepted' : ''}>
+                    <b>{q.answerCount}</b> 回答
+                  </span>
+                  <span>{q.viewCount} 浏览</span>
+                </div>
+                <div className="qmain">
+                  <Link className="qtitle" to={`/questions/${q.id}`}>
+                    {q.title}
+                  </Link>
+                  {'bountyOpen' in q && q.bountyOpen && <span className="bounty open">有悬赏</span>}
+                  <p className="excerpt">{q.excerpt}</p>
+                  <div className="tagrow">
+                    {q.tags.map((t) => (
+                      <button key={t} className="tag" onClick={() => setActiveTag(t)}>
+                        {t}
+                      </button>
+                    ))}
+                    <span className="muted">
+                      {q.author.displayName} · {new Date(q.createdAt).toLocaleString('zh-CN')}
+                    </span>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        {!loading && data && data.items.length === 0 && (
+          <p className="muted">没有匹配的问题，换个关键词试试。</p>
+        )}
       </section>
 
       <aside>
@@ -81,7 +145,8 @@ export function QuestionListPage() {
         <div className="tagrow">
           {tags.map((t) => (
             <button key={t.name} className="tag" onClick={() => setActiveTag(t.name)}>
-              {t.name}<span className="count">{t.questionCount}</span>
+              {t.name}
+              <span className="count">{t.questionCount}</span>
             </button>
           ))}
         </div>
