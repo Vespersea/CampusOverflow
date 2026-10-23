@@ -35,13 +35,33 @@ public class LeaderboardService {
     @EventListener
     @Transactional
     public void on(ReputationChangedEvent e) {
-        // TODO(S3)：实现 LeaderboardService.on——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S3)：LeaderboardService.on 尚未实现");
+        // 至少一次投递：先去重，再只把增量写进各周期 ZSET；总榜直接读账户表
+        if (!processed.markProcessed(e.eventId(), "reputation.leaderboard")) {
+            return;
+        }
+        store.increment(e.userId(), e.delta(), e.occurredAt());
     }
 
     @Transactional(readOnly = true)
     public List<LeaderboardEntryView> top(LeaderboardPeriod period, int limit) {
-        // TODO(S3)：实现 LeaderboardService.top——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S3)：LeaderboardService.top 尚未实现");
+        int safeLimit = Math.min(Math.max(limit, 1), 100);
+        if (period == LeaderboardPeriod.ALL) {
+            return rank(accounts.topByReputation(safeLimit).stream()
+                    .map(a -> new LeaderboardStore.Entry(a.userId(), a.reputation()))
+                    .toList());
+        }
+        return rank(store.top(period, clock.instant(), safeLimit));
+    }
+
+    private List<LeaderboardEntryView> rank(List<LeaderboardStore.Entry> entries) {
+        Map<Long, UserSummary> users = identity.findUsers(
+                entries.stream().map(LeaderboardStore.Entry::userId).toList());
+        List<LeaderboardEntryView> views = new ArrayList<>(entries.size());
+        for (LeaderboardStore.Entry e : entries) {
+            UserSummary u = users.get(e.userId());
+            views.add(new LeaderboardEntryView(views.size() + 1, e.userId(),
+                    u == null ? "用户" + e.userId() : u.displayName(), u != null && u.verified(), e.score()));
+        }
+        return views;
     }
 }

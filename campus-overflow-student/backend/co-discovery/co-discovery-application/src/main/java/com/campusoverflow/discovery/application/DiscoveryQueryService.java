@@ -29,12 +29,32 @@ public class DiscoveryQueryService {
     }
 
     public PageResult<SearchResultView> search(SearchQuery query) {
-        // TODO(S3)：实现 DiscoveryQueryService.search——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S3)：DiscoveryQueryService.search 尚未实现");
+        PageResult<SearchHit> hits = search.search(query);
+        Map<Long, UserSummary> authors = identity.findUsers(
+                hits.items().stream().map(SearchHit::authorId).distinct().toList());
+        return hits.map(hit -> {
+            UserSummary author = authors.get(hit.authorId());
+            return new SearchResultView(hit.questionId(), hit.title(), hit.snippet(), hit.tags(), hit.courseId(),
+                    author == null ? new SearchResultView.Author(hit.authorId(), "用户" + hit.authorId(), "STUDENT",
+                            false)
+                            : new SearchResultView.Author(author.id(), author.displayName(), author.role().name(),
+                            author.verified()),
+                    hit.score(), hit.answerCount(), hit.accepted(), hit.bountyOpen(), hit.createdAt());
+        });
     }
 
     public List<RelatedQuestionView> related(long questionId, int limit) {
-        // TODO(S3)：实现 DiscoveryQueryService.related——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S3)：DiscoveryQueryService.related 尚未实现");
+        List<String> tags = index.findTags(questionId);
+        if (tags.isEmpty()) {
+            return List.of();
+        }
+        int safeLimit = Math.min(Math.max(limit, 1), 10);
+        // 先取足量候选再排序截断，避免在低相似度候选中提前截断
+        List<SearchIndex.RelatedCandidate> candidates =
+                index.findCandidatesSharingTags(questionId, tags, Math.max(safeLimit * 4, 20));
+        return RelatedQuestionPolicy.rank(candidates, tags.size(), safeLimit).stream()
+                .map(c -> new RelatedQuestionView(c.questionId(), c.title(), c.answerCount(), c.accepted(),
+                        RelatedQuestionPolicy.jaccard(c.sharedTags(), tags.size(), c.tagCount())))
+                .toList();
     }
 }
