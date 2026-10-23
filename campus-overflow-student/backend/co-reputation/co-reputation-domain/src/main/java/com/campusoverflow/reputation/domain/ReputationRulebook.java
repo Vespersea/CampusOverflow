@@ -24,7 +24,8 @@ public final class ReputationRulebook {
         return switch (value) {
             case 1 -> UPVOTE;
             case -1 -> DOWNVOTE;
-            default -> 0;
+            case 0 -> 0;
+            default -> throw new IllegalArgumentException("非法投票值: " + value);
         };
     }
 
@@ -41,8 +42,7 @@ public final class ReputationRulebook {
         if (delta <= 0) {
             return delta;
         }
-        int remaining = DAILY_VOTE_CAP - positiveVoteGainToday;
-        return Math.max(0, Math.min(delta, remaining));
+        return Math.max(0, Math.min(delta, DAILY_VOTE_CAP - positiveVoteGainToday));
     }
 
     /** 开户时发放的悬赏积分（与声誉是两种不同的“货币”）。 */

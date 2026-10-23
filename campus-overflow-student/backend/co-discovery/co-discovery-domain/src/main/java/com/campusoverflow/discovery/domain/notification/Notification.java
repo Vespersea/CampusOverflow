@@ -30,12 +30,6 @@ public class Notification {
 
     public static Notification create(long recipientId, NotificationType type, String title, String link,
                                       String sourceEventId, Instant now) {
-        // 校验非空约束
-        Objects.requireNonNull(type, "通知类型type不能为null");
-        Objects.requireNonNull(sourceEventId, "sourceEventId 事件ID不能为空，用于防重复投递");
-        Objects.requireNonNull(now, "创建时间now不能为空");
-
-        // 新建通知默认未读 read = false
         return new Notification(null, recipientId, type, title, link, sourceEventId, false, now);
     }
 
@@ -45,13 +39,8 @@ public class Notification {
     }
 
     public void markRead(long actorId) {
-        // 业务规则：只有通知接收人本人才能标记已读
-        if (actorId != this.recipientId) {
-            throw new ForbiddenException("FORBIDDEN_NOTIFICATION", "无权标记他人的通知为已读");
-        }
-        // 如果已经已读，直接返回，避免无效变更
-        if (this.read) {
-            return;
+        if (actorId != recipientId) {
+            throw new ForbiddenException("DIS-3001", "只有接收者本人可以标记通知已读");
         }
         this.read = true;
     }

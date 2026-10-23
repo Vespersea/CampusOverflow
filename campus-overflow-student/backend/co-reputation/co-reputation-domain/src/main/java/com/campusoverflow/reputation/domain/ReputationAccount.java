@@ -24,7 +24,7 @@ public class ReputationAccount {
 
     public static ReputationAccount open(long userId, int initialPoints) {
         if (initialPoints < 0) {
-            throw new BusinessRuleException("REP-1001", "开户积分不能为负");
+            throw new BusinessRuleException("REP-1001", "初始积分不能为负");
         }
         return new ReputationAccount(userId, 0, initialPoints, 0, 0);
     }
@@ -41,8 +41,8 @@ public class ReputationAccount {
 
     public void freezePoints(int points) {
         requirePositive(points);
-        if (availablePoints < points) {
-            throw new BusinessRuleException("REP-1002", "可用悬赏积分不足");
+        if (this.availablePoints < points) {
+            throw new BusinessRuleException("REP-1002", "可用积分不足");
         }
         this.availablePoints -= points;
         this.frozenPoints += points;
@@ -64,14 +64,14 @@ public class ReputationAccount {
     }
 
     private void ensureFrozen(int points) {
-        if (frozenPoints < points) {
-            throw new BusinessRuleException("REP-1002", "冻结悬赏积分不足");
+        if (this.frozenPoints < points) {
+            throw new BusinessRuleException("REP-1003", "冻结积分不足");
         }
     }
 
     private static void requirePositive(int points) {
         if (points <= 0) {
-            throw new BusinessRuleException("REP-1001", "悬赏积分必须为正数");
+            throw new BusinessRuleException("REP-1001", "积分必须为正数");
         }
     }
 

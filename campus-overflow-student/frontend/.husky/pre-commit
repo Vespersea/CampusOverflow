@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Lab 5：提交前对暂存的前端文件执行 eslint --fix 与 prettier（配置见 frontend/package.json 的 lint-staged）
+cd "$(git rev-parse --show-toplevel)/campus-overflow-student/frontend" || exit 1
+npx lint-staged --allow-empty

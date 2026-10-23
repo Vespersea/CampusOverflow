@@ -33,25 +33,23 @@ public class ReputationQueryService {
     }
 
     public ReputationProfileView profile(long userId, Actor viewerOrNull) {
-        UserSummary user = identity.findUser(userId)
-                .orElseThrow(() -> new NotFoundException("ID-4001", "用户不存在"));
         ReputationAccount account = accounts.findByUserId(userId)
-                .orElseGet(() -> ReputationAccount.open(userId, 0));
+                .orElseThrow(() -> new NotFoundException("REP-4002", "声誉账户不存在"));
+        boolean self = viewerOrNull != null && viewerOrNull.userId() == userId;
+        String displayName = identity.findUser(userId).map(UserSummary::displayName)
+                .orElse("用户" + userId);
         List<ReputationProfileView.BadgeView> badgeViews = badges.findByUser(userId).stream()
                 .map(a -> new ReputationProfileView.BadgeView(a.type().name(), a.type().displayName(),
                         a.type().description(), a.awardedAt()))
                 .toList();
-        boolean privileged = viewerOrNull != null && (viewerOrNull.is(userId) || viewerOrNull.isAdmin());
-        Integer available = privileged ? account.availablePoints() : null;
-        Integer frozen = privileged ? account.frozenPoints() : null;
-        return new ReputationProfileView(userId, user.displayName(), account.reputation(), available, frozen,
-                badgeViews);
+        return new ReputationProfileView(userId, displayName, account.reputation(),
+                self ? account.availablePoints() : null, self ? account.frozenPoints() : null, badgeViews);
     }
 
     /** 声誉流水属于个人数据：仅本人与管理员可查看。 */
     public PageResult<LedgerEntryView> ledger(long userId, Actor viewer, PageRequest page) {
-        if (viewer == null || (!viewer.is(userId) && !viewer.isAdmin())) {
-            throw new ForbiddenException("REP-3002", "只能查看自己的声誉流水");
+        if (!viewer.is(userId) && !viewer.isAdmin()) {
+            throw new ForbiddenException("REP-3002", "声誉流水仅本人或管理员可查看");
         }
         return ledger.findByUser(userId, page).map(e -> new LedgerEntryView(e.id(), e.reason().name(),
                 e.reason().label(), e.delta(), e.refType(), e.refId(), e.createdAt()));

@@ -13,6 +13,8 @@ import com.campusoverflow.reputation.domain.ReputationAccount;
 import com.campusoverflow.reputation.domain.ReputationAccountRepository;
 import com.campusoverflow.reputation.domain.ReputationReason;
 import com.campusoverflow.shared.audit.AuditTrail;
+import com.campusoverflow.shared.domain.BusinessRuleException;
+import com.campusoverflow.shared.domain.ConflictException;
 import com.campusoverflow.shared.domain.NotFoundException;
 import com.campusoverflow.shared.event.EventIds;
 import com.campusoverflow.shared.event.IntegrationEventPublisher;
@@ -54,62 +56,60 @@ public class BountyService {
     @Transactional
     public long open(Actor actor, long questionId, int points, int days) {
         QuestionRef question = qa.findQuestion(questionId)
-                .orElseThrow(() -> new NotFoundException("QA-4001", "问题不存在"));
-        boolean managesCourse = identity.canManageCourse(actor.userId(), question.courseId());
-        boolean questionOpen = !question.deleted() && question.acceptedAnswerId() == null;
-        Bounty bounty = Bounty.open(questionId, questionOpen, actor, managesCourse, points, days, clock.instant());
-
+                .orElseThrow(() -> new NotFoundException("REP-4001", "问题不存在"));
+        boolean manages = identity.canManageCourse(actor.userId(), question.courseId());
+        Bounty bounty = Bounty.open(questionId, !question.deleted() && question.acceptedAnswerId() == null, actor,
+                manages, points, days, clock.instant());
+        bounties.findOpenByQuestion(questionId).ifPresent(existing -> {
+            throw new ConflictException("REP-2002", "该问题已有进行中的悬赏");
+        });
         ReputationAccount sponsor = accounts.findByUserId(actor.userId())
-                .orElseThrow(() -> new NotFoundException("REP-4001", "声誉账户不存在"));
+                .orElseThrow(() -> new BusinessRuleException("REP-1007", "声誉账户不存在，无法冻结积分"));
         sponsor.freezePoints(points);
         accounts.save(sponsor);
-
-        Bounty saved = bounties.save(bounty);
-        events.publish(new BountyOpenedEvent(EventIds.next(), clock.instant(), saved.id(), questionId,
-                actor.userId(), points, saved.expiresAt()));
+        bounties.save(bounty);
+        events.publish(new BountyOpenedEvent(EventIds.next(), clock.instant(), bounty.id(), questionId,
+                actor.userId(), points, bounty.expiresAt()));
         audit.record("BOUNTY_OPENED", actor.userId(), "QUESTION", String.valueOf(questionId),
-                "points=" + points + ", days=" + days);
-        return saved.id();
+                "points=" + points + " days=" + days);
+        return bounty.id();
     }
 
     /** 由 AnswerAccepted 事件触发（在处理器事务内）。幂等：悬赏已结束则直接返回。 */
     @Transactional(propagation = Propagation.MANDATORY)
     public void settleOnAccept(long questionId, long answerId, long winnerId, String sourceEventId) {
-        Optional<Bounty> openBounty = bounties.findOpenByQuestion(questionId);
-        if (openBounty.isEmpty()) {
+        Optional<Bounty> existing = bounties.findOpenByQuestion(questionId);
+        if (existing.isEmpty()) {
             return;
         }
-        Bounty bounty = openBounty.get();
-        ReputationAccount sponsor = accounts.findByUserId(bounty.sponsorId())
-                .orElseThrow(() -> new NotFoundException("REP-4001", "声誉账户不存在"));
-        if (bounty.sponsorId() == winnerId) {
-            closeAndRefund(bounty, sponsor, clock.instant());
+        Bounty bounty = existing.get();
+        Instant now = clock.instant();
+        if (winnerId == bounty.sponsorId()) {
+            // 被采纳的恰好是发起人自己的回答：关闭并退款
+            closeAndRefund(bounty, loadSponsorAccount(bounty.sponsorId()), now);
             return;
         }
-        bounty.award(answerId, winnerId, clock.instant());
+        bounty.award(answerId, winnerId, now);
         bounties.save(bounty);
-        ledgerService.record(winnerId, sourceEventId, ReputationReason.BOUNTY_AWARDED, bounty.points(),
-                "BOUNTY", bounty.id());
+        ReputationAccount sponsor = loadSponsorAccount(bounty.sponsorId());
         sponsor.spendFrozen(bounty.points());
         accounts.save(sponsor);
-        events.publish(new BountyAwardedEvent(EventIds.next(), clock.instant(), bounty.id(), questionId,
-                bounty.sponsorId(), winnerId, bounty.points()));
-        audit.record("BOUNTY_AWARDED", bounty.sponsorId(), "BOUNTY", String.valueOf(bounty.id()),
-                "winner=" + winnerId + ", points=" + bounty.points());
+        // 冻结积分以声誉形式发放给获奖者
+        ledgerService.record(winnerId, sourceEventId, ReputationReason.BOUNTY_AWARDED, bounty.points(), "BOUNTY",
+                bounty.id());
+        events.publish(new BountyAwardedEvent(EventIds.next(), now, bounty.id(), questionId, bounty.sponsorId(),
+                winnerId, bounty.points()));
+        audit.record("BOUNTY_AWARDED", bounty.sponsorId(), "QUESTION", String.valueOf(questionId),
+                "winner=" + winnerId + " points=" + bounty.points());
     }
 
     /** 到期未采纳的悬赏：关闭并退回冻结积分。由定时任务调用。 */
     @Transactional
     public int expireDue() {
         Instant now = clock.instant();
-        List<Bounty> due = bounties.findDue(now, 200);
         int closed = 0;
-        for (Bounty bounty : due) {
-            ReputationAccount sponsor = accounts.findByUserId(bounty.sponsorId()).orElse(null);
-            if (sponsor == null) {
-                continue;
-            }
-            closeAndRefund(bounty, sponsor, now);
+        for (Bounty bounty : bounties.findDue(now, 100)) {
+            closeAndRefund(bounty, loadSponsorAccount(bounty.sponsorId()), now);
             closed++;
         }
         return closed;
@@ -117,11 +117,14 @@ public class BountyService {
 
     @Transactional(readOnly = true)
     public Optional<BountyView> latest(long questionId) {
-        return bounties.findLatestByQuestion(questionId).map(b -> {
-            String sponsorName = identity.findUser(b.sponsorId()).map(UserSummary::displayName).orElse("未知用户");
-            return new BountyView(b.id(), b.questionId(), b.sponsorId(), sponsorName, b.points(),
-                    b.status().name(), b.createdAt(), b.expiresAt(), b.winnerId(), b.answerId());
-        });
+        return bounties.findLatestByQuestion(questionId).map(b -> new BountyView(b.id(), b.questionId(), b.sponsorId(),
+                identity.findUser(b.sponsorId()).map(UserSummary::displayName).orElse("用户" + b.sponsorId()),
+                b.points(), b.status().name(), b.createdAt(), b.expiresAt(), b.winnerId(), b.answerId()));
+    }
+
+    private ReputationAccount loadSponsorAccount(long sponsorId) {
+        return accounts.findByUserId(sponsorId)
+                .orElseThrow(() -> new NotFoundException("REP-4002", "发起人声誉账户不存在"));
     }
 
     private void closeAndRefund(Bounty bounty, ReputationAccount sponsor, Instant now) {
@@ -131,7 +134,5 @@ public class BountyService {
         accounts.save(sponsor);
         events.publish(new BountyClosedEvent(EventIds.next(), now, bounty.id(), bounty.questionId(),
                 bounty.sponsorId(), bounty.points()));
-        audit.record("BOUNTY_CLOSED", bounty.sponsorId(), "BOUNTY", String.valueOf(bounty.id()),
-                "refunded=" + bounty.points());
     }
 }

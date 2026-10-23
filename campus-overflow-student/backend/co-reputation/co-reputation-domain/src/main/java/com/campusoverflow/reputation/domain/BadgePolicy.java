@@ -10,7 +10,7 @@ public final class BadgePolicy {
     }
 
     public static Set<BadgeType> forAcceptedCount(long acceptedCount) {
-        Set<BadgeType> result = EnumSet.noneOf(BadgeType.class);
+        EnumSet<BadgeType> result = EnumSet.noneOf(BadgeType.class);
         if (acceptedCount >= 1) {
             result.add(BadgeType.FIRST_ACCEPTED);
         }
@@ -21,7 +21,7 @@ public final class BadgePolicy {
     }
 
     public static Set<BadgeType> forReputation(int reputation) {
-        Set<BadgeType> result = EnumSet.noneOf(BadgeType.class);
+        EnumSet<BadgeType> result = EnumSet.noneOf(BadgeType.class);
         if (reputation >= 100) {
             result.add(BadgeType.REPUTATION_100);
         }
