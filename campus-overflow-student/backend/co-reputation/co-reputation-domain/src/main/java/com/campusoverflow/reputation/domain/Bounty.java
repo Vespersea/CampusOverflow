@@ -47,16 +47,16 @@ public class Bounty {
     public static Bounty open(long questionId, boolean questionOpen, Actor sponsor, boolean sponsorManagesCourse,
                               int points, int days, Instant now) {
         if (!sponsorManagesCourse) {
-            throw new ForbiddenException("REP-3001", "只有课程教师/助教或管理员可以发起悬赏");
-        }
-        if (!questionOpen) {
-            throw new BusinessRuleException("REP-1006", "问题已删除或已采纳，不能发起悬赏");
+            throw new ForbiddenException("REP-3001", "仅课程管理者可以发起悬赏");
         }
         if (points < MIN_POINTS || points > MAX_POINTS) {
-            throw new BusinessRuleException("REP-1003", "悬赏积分应在 " + MIN_POINTS + "–" + MAX_POINTS + " 之间");
+            throw new BusinessRuleException("REP-1003", "悬赏积分需在 " + MIN_POINTS + "–" + MAX_POINTS + " 之间");
         }
         if (days < 1 || days > MAX_DAYS) {
-            throw new BusinessRuleException("REP-1004", "悬赏期限应在 1–" + MAX_DAYS + " 天之间");
+            throw new BusinessRuleException("REP-1004", "悬赏时长需在 1–" + MAX_DAYS + " 天之间");
+        }
+        if (!questionOpen) {
+            throw new BusinessRuleException("REP-1005", "问题已被删除或已有采纳回答，不能发起悬赏");
         }
         return new Bounty(null, questionId, sponsor.userId(), points, BountyStatus.OPEN, now,
                 now.plus(Duration.ofDays(days)), null, null, null);
@@ -72,7 +72,7 @@ public class Bounty {
     public void award(long answerId, long winnerId, Instant now) {
         ensureOpen();
         if (winnerId == sponsorId) {
-            throw new BusinessRuleException("REP-1007", "发起人不能赢得自己发起的悬赏");
+            throw new BusinessRuleException("REP-1006", "发起人不能赢得自己的悬赏");
         }
         this.status = BountyStatus.AWARDED;
         this.winnerId = winnerId;
@@ -88,12 +88,12 @@ public class Bounty {
     }
 
     public boolean isDue(Instant now) {
-        return !now.isBefore(expiresAt);
+        return status == BountyStatus.OPEN && !now.isBefore(expiresAt);
     }
 
     private void ensureOpen() {
         if (status != BountyStatus.OPEN) {
-            throw new ConflictException("REP-2001", "悬赏已结束，不能重复结算");
+            throw new ConflictException("REP-2001", "悬赏已结束，不能重复操作");
         }
     }
 

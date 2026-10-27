@@ -26,10 +26,10 @@ public class ReconciliationService {
 
     @Transactional(readOnly = true)
     public List<Mismatch> reconcile() {
-        Map<Long, Long> ledgerSum = ledger.sumByUser();
+        Map<Long, Long> sums = ledger.sumByUser();
         List<Mismatch> result = new ArrayList<>();
         for (ReputationAccount account : accounts.findAll()) {
-            long sum = ledgerSum.getOrDefault(account.userId(), 0L);
+            long sum = sums.getOrDefault(account.userId(), 0L);
             if (account.reputation() != sum) {
                 result.add(new Mismatch(account.userId(), account.reputation(), sum));
             }

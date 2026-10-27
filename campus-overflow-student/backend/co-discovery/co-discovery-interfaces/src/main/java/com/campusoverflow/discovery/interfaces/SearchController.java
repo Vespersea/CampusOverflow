@@ -39,7 +39,7 @@ public class SearchController {
                                                @RequestParam(defaultValue = "1") int page,
                                                @RequestParam(defaultValue = "20") int size) {
         SearchSort s = sort == null || sort.isBlank() ? null : SearchSort.valueOf(sort.toUpperCase(Locale.ROOT));
-        return discovery.searchQuestion(new SearchQuery(q, courseId, tag, s, unanswered, bounty, new PageRequest(page, size)));
+        return discovery.search(new SearchQuery(q, courseId, tag, s, unanswered, bounty, new PageRequest(page, size)));
     }
 
     @Operation(summary = "相关问题（标签 Jaccard 相似度）")

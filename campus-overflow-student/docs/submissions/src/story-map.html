@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>CampusOverflow 用户故事地图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: #fafafa; color: #1f2937; padding: 28px 32px 24px;
+  }
+  .header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  h1 { font-size: 30px; font-weight: 700; color: #111827; }
+  .meta { font-size: 15px; color: #6b7280; }
+  .subtitle { font-size: 14px; color: #6b7280; margin-bottom: 16px; }
+  .grid {
+    display: grid;
+    grid-template-columns: 118px repeat(6, 1fr);
+    gap: 8px;
+  }
+  .cell { display: flex; flex-direction: column; gap: 6px; min-height: 86px; }
+  .stage-head, .goal-head {
+    background: #1f2937; color: #fff; border-radius: 8px;
+    padding: 10px 8px; text-align: center; font-weight: 600; font-size: 16px;
+  }
+  .goal-head { background: #e5e7eb; color: #374151; font-weight: 400; font-size: 13px; padding: 8px 6px; }
+  .layer-label {
+    display: flex; flex-direction: column; justify-content: center;
+    border-radius: 8px; padding: 8px; text-align: center;
+    font-size: 14px; font-weight: 600; color: #374151; background: #f3f4f6;
+  }
+  .layer-label small { font-weight: 400; font-size: 11px; color: #6b7280; margin-top: 3px; }
+  .card {
+    background: #fff; border: 1.5px solid #d1d5db; border-radius: 8px;
+    padding: 8px 10px; font-size: 14px; line-height: 1.45;
+    box-shadow: 0 1px 2px rgba(0,0,0,.06);
+  }
+  .card .id { font-weight: 700; color: #111827; }
+  .card .desc { color: #374151; }
+  .card .sp { float: right; font-size: 11px; color: #6b7280; background: #f3f4f6; border-radius: 10px; padding: 1px 7px; margin-left: 6px; }
+  .card.ws { border: 2px solid #2e7d32; background: #f1f8f2; }
+  .card.ws .ws-badge { display: inline-block; background: #2e7d32; color: #fff; font-size: 11px; border-radius: 4px; padding: 0 5px; margin-left: 4px; font-weight: 600; }
+  .card.stretch { border-style: dashed; border-color: #f59e0b; background: #fffbeb; }
+  .card.stretch .ws-badge { background: #f59e0b; }
+  .card.empty { background: #f9fafb; border: 1.5px dashed #e5e7eb; color: #9ca3af; font-size: 13px; text-align: center; padding: 14px 8px; }
+  .row-band-a .cell { background: #ffffff; border-radius: 10px; padding: 4px; }
+  .row-band-b .cell { background: #f6f8fa; border-radius: 10px; padding: 4px; }
+  .legend { margin-top: 18px; display: flex; gap: 24px; align-items: center; font-size: 14px; color: #374151; flex-wrap: wrap; }
+  .legend .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 16px; height: 16px; border-radius: 4px; display: inline-block; }
+  .sw-ws { background: #f1f8f2; border: 2px solid #2e7d32; }
+  .sw-stretch { background: #fffbeb; border: 2px dashed #f59e0b; }
+  .sw-norm { background: #fff; border: 1.5px solid #d1d5db; }
+  .skeleton-line {
+    margin-top: 14px; background: #eef7ef; border: 1px solid #a5d6a7; border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; color: #1b5e20;
+  }
+  .skeleton-line b { font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>📋 CampusOverflow 用户故事地图(Story Map)</h1>
+    <span class="meta">v1.0 · 维护人:张三(PO)</span>
+  </div>
+  <div class="subtitle">横轴 = 用户活动时间线(注册 → 浏览 → 提问 → 回答 → 互动 → 成长);纵轴自顶向下按"不可或缺 → 锦上添花"排列,越靠上越接近 Walking Skeleton。</div>
+
+  <div class="grid">
+    <!-- 表头行 -->
+    <div class="cell"><div class="stage-head">层级</div></div>
+    <div class="cell"><div class="stage-head">① 注册</div><div class="goal-head">拥有身份,进入社区</div></div>
+    <div class="cell"><div class="stage-head">② 浏览</div><div class="goal-head">找到感兴趣的问题</div></div>
+    <div class="cell"><div class="stage-head">③ 提问</div><div class="goal-head">获得解答</div></div>
+    <div class="cell"><div class="stage-head">④ 回答</div><div class="goal-head">分享知识</div></div>
+    <div class="cell"><div class="stage-head">⑤ 互动</div><div class="goal-head">认可与讨论</div></div>
+    <div class="cell"><div class="stage-head">⑥ 成长</div><div class="goal-head">声望与激励</div></div>
+
+    <!-- 第一层 必备 -->
+    <div class="cell"><div class="layer-label">第一层<small>必备</small></div></div>
+    <div class="cell"><div class="card ws"><span class="sp">3 SP</span><span class="id">US-01</span> <span class="desc">学生注册(学号/昵称/邮箱/密码/学院/班级)</span><span class="ws-badge">🚶 WS</span></div></div>
+    <div class="cell"><div class="card ws"><span class="sp">5 SP</span><span class="id">US-03</span> <span class="desc">问题列表(按课程/标签/分页)</span><span class="ws-badge">🚶 WS</span></div></div>
+    <div class="cell"><div class="card ws"><span class="sp">5 SP</span><span class="id">US-04</span> <span class="desc">发布问题(标题/Markdown/1–5 标签/可选课程)</span><span class="ws-badge">🚶 WS</span></div></div>
+    <div class="cell"><div class="card ws"><span class="sp">5 SP</span><span class="id">US-05</span> <span class="desc">提交回答(Markdown 正文)</span><span class="ws-badge">🚶 WS</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">3 SP</span><span class="id">US-08</span> <span class="desc">投票赞/踩/改投/撤销</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">3 SP</span><span class="id">US-12</span> <span class="desc">声誉值展示</span></div></div>
+
+    <!-- 第二层 核心增强 -->
+    <div class="cell"><div class="layer-label">第二层<small>核心增强</small></div></div>
+    <div class="cell"><div class="card ws stretch"><span class="sp">3 SP</span><span class="id">US-02</span> <span class="desc">登录/会话保持</span><span class="ws-badge">🚶 拉伸</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">3 SP</span><span class="id">US-06</span> <span class="desc">问题详情(回答/评论/我的投票)</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">3 SP</span><span class="id">US-11</span> <span class="desc">问题编辑与软删除</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">3 SP</span><span class="id">US-09</span> <span class="desc">采纳最佳答案(+15 声誉)</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">3 SP</span><span class="id">US-07</span> <span class="desc">评论与 @提及(最多 5 人)</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">5 SP</span><span class="id">US-13</span> <span class="desc">徽章(6 种,事件驱动)</span></div></div>
+
+    <!-- 第三层 进阶 -->
+    <div class="cell"><div class="layer-label">第三层<small>进阶</small></div></div>
+    <div class="cell"><div class="card empty">—</div></div>
+    <div class="cell"><div class="card"><span class="sp">5 SP</span><span class="id">US-18</span> <span class="desc">全文搜索(ngram,每词 ≥2 字符)</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">3 SP</span><span class="id">US-19</span> <span class="desc">相关问题推荐(标签 Jaccard)</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">2 SP</span><span class="id">US-10</span> <span class="desc">教师认证回答</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">5 SP</span><span class="id">US-14</span> <span class="desc">悬赏发起(10–500 积分,1–14 天,冻结)</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">3 SP</span><span class="id">US-16</span> <span class="desc">排行榜(周/月/学期/总)</span></div></div>
+
+    <!-- 第四层 完善 -->
+    <div class="cell"><div class="layer-label">第四层<small>完善</small></div></div>
+    <div class="cell"><div class="card empty">—</div></div>
+    <div class="cell"><div class="card"><span class="sp">5 SP</span><span class="id">US-21</span> <span class="desc">举报与内容管理</span></div></div>
+    <div class="cell"><div class="card empty">—</div></div>
+    <div class="cell"><div class="card"><span class="sp">3 SP</span><span class="id">US-15</span> <span class="desc">悬赏到期退款/结算</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">5 SP</span><span class="id">US-17</span> <span class="desc">通知中心(幂等键防重不漏)</span></div></div>
+    <div class="cell"><div class="card"><span class="sp">3 SP</span><span class="id">US-22</span> <span class="desc">声誉账本对账</span></div></div>
+
+    <!-- 第五层 演示辅助 -->
+    <div class="cell"><div class="layer-label">第五层<small>演示辅助</small></div></div>
+    <div class="cell"><div class="card empty">—</div></div>
+    <div class="cell"><div class="card"><span class="sp">5 SP</span><span class="id">US-20</span> <span class="desc">演示数据(贯穿全部阶段)</span></div></div>
+    <div class="cell"><div class="card empty">—</div></div>
+    <div class="cell"><div class="card empty">—</div></div>
+    <div class="cell"><div class="card empty">—</div></div>
+    <div class="cell"><div class="card empty">—</div></div>
+  </div>
+
+  <div class="legend">
+    <span class="chip"><span class="sw sw-ws"></span> 🚶 Walking Skeleton(Sprint 1 MVP)</span>
+    <span class="chip"><span class="sw sw-stretch"></span> 🚶 拉伸项(尽力而为)</span>
+    <span class="chip"><span class="sw sw-norm"></span> 普通故事卡</span>
+    <span class="chip" style="color:#6b7280">WS = Walking Skeleton · 数字为 Story Point(1 SP ≈ 半人天)</span>
+  </div>
+
+  <div class="skeleton-line">
+    <b>Walking Skeleton 切片(Sprint 1 MVP):</b>注册 → 浏览 → 提问 → 回答,即 US-01 + US-03 + US-04 + US-05(外加拉伸项 US-02 登录)。
+    <b>验收闭环:</b>一位新注册的学生能在 5 分钟内完成"注册账号 → 浏览问题列表 → 发布一个问题 → 对别人的问题提交一条回答";该闭环同时作为后端集成测试与前端演示脚本的主线。
+  </div>
+</body>
+</html>

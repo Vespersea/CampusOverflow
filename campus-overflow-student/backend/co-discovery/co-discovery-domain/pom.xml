@@ -26,10 +26,6 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.campusoverflow</groupId>
-            <artifactId>co-qa-domain</artifactId>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -6,7 +6,6 @@ import com.campusoverflow.reputation.api.event.ReputationChangedEvent;
 import com.campusoverflow.reputation.domain.ReputationAccountRepository;
 import com.campusoverflow.shared.event.ProcessedEventStore;
 import java.time.Clock;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,8 @@ public class LeaderboardService {
     @EventListener
     @Transactional
     public void on(ReputationChangedEvent e) {
-        if (!processed.markProcessed(e.eventId(), "leaderboard")) {
+        // 至少一次投递：先去重，再只把增量写进各周期 ZSET；总榜直接读账户表
+        if (!processed.markProcessed(e.eventId(), "reputation.leaderboard")) {
             return;
         }
         store.increment(e.userId(), e.delta(), e.occurredAt());
@@ -44,27 +44,24 @@ public class LeaderboardService {
 
     @Transactional(readOnly = true)
     public List<LeaderboardEntryView> top(LeaderboardPeriod period, int limit) {
-        Instant now = clock.instant();
-        List<LeaderboardStore.Entry> entries;
+        int safeLimit = Math.min(Math.max(limit, 1), 100);
         if (period == LeaderboardPeriod.ALL) {
-            entries = accounts.topByReputation(limit).stream()
+            return rank(accounts.topByReputation(safeLimit).stream()
                     .map(a -> new LeaderboardStore.Entry(a.userId(), a.reputation()))
-                    .toList();
-        } else {
-            entries = store.top(period, now, limit);
+                    .toList());
         }
+        return rank(store.top(period, clock.instant(), safeLimit));
+    }
+
+    private List<LeaderboardEntryView> rank(List<LeaderboardStore.Entry> entries) {
         Map<Long, UserSummary> users = identity.findUsers(
                 entries.stream().map(LeaderboardStore.Entry::userId).toList());
-        List<LeaderboardEntryView> result = new ArrayList<>();
-        for (int i = 0; i < entries.size(); i++) {
-            LeaderboardStore.Entry entry = entries.get(i);
-            UserSummary user = users.get(entry.userId());
-            if (user == null) {
-                continue;
-            }
-            result.add(new LeaderboardEntryView(i + 1, entry.userId(), user.displayName(), user.verified(),
-                    entry.score()));
+        List<LeaderboardEntryView> views = new ArrayList<>(entries.size());
+        for (LeaderboardStore.Entry e : entries) {
+            UserSummary u = users.get(e.userId());
+            views.add(new LeaderboardEntryView(views.size() + 1, e.userId(),
+                    u == null ? "用户" + e.userId() : u.displayName(), u != null && u.verified(), e.score()));
         }
-        return result;
+        return views;
     }
 }

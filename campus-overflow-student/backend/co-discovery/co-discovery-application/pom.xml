@@ -45,9 +45,5 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.campusoverflow</groupId>
-            <artifactId>co-identity-domain</artifactId>
-        </dependency>
     </dependencies>
 </project>

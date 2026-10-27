@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>CampusOverflow 上下文映射图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; }
+  body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: #fbfbfd; color: #1f2937; padding: 26px 32px 22px; }
+  .header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+  h1 { font-size: 28px; font-weight: 700; color: #111827; }
+  .meta { font-size: 14px; color: #6b7280; }
+  svg text { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+  .legend-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13.5px; }
+  .legend-table th, .legend-table td { border: 1px solid #e5e7eb; padding: 7px 10px; text-align: left; }
+  .legend-table th { background: #f3f4f6; font-weight: 600; }
+  .legend-table td.num { font-weight: 700; white-space: nowrap; }
+  .note { margin-top: 12px; font-size: 13px; color: #374151; }
+  .note b { color: #111827; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>🗺️ CampusOverflow 上下文映射图(Context Map)</h1>
+    <span class="meta">v1.0 · Lab 3 产出物 · 4 个限界上下文 + 共享内核 + 组合根</span>
+  </div>
+
+  <svg viewBox="0 0 1600 900" width="1536" height="864">
+    <defs>
+      <marker id="arr-solid" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#1e40af"/>
+      </marker>
+      <marker id="arr-dash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d"/>
+      </marker>
+    </defs>
+
+    <!-- 共享内核 -->
+    <rect x="120" y="40" width="1360" height="100" rx="12" fill="#eef2f7" stroke="#475569" stroke-width="2"/>
+    <text x="140" y="72" font-size="19" font-weight="700" fill="#334155">co-shared-kernel(共享内核)⑥</text>
+    <text x="140" y="100" font-size="13.5" fill="#475569">领域异常体系(1xxx/2xxx/3xxx/4xxx 错误码族)· 分页 PageRequest/PageResult · 事件契约 IntegrationEvent/Actor/Role/UtcTime</text>
+    <text x="140" y="123" font-size="12.5" fill="#64748b">约束:只放"全员一致同意共享"的最小集合;新增共享类需全团队评审并在 README 记录</text>
+
+    <!-- identity -->
+    <g>
+      <rect x="110" y="260" width="290" height="210" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+      <rect x="110" y="260" width="290" height="42" rx="12" fill="#2563eb"/>
+      <rect x="110" y="288" width="290" height="14" fill="#2563eb"/>
+      <text x="255" y="288" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">co-identity · 身份认证</text>
+      <text x="130" y="330" font-size="13.5" fill="#1e3a8a">聚合:User / Course</text>
+      <text x="130" y="356" font-size="13.5" fill="#1e3a8a">发布语言:co-identity-api</text>
+      <text x="130" y="382" font-size="13.5" fill="#1e3a8a">(IdentityApi / CourseApi,OHS)</text>
+      <text x="130" y="414" font-size="12.5" fill="#64748b">注册 / 登录 / 课程角色</text>
+      <text x="130" y="438" font-size="12.5" fill="#64748b">事件源:UserRegistered 等</text>
+    </g>
+
+    <!-- qa -->
+    <g>
+      <rect x="470" y="260" width="290" height="210" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.5"/>
+      <rect x="470" y="260" width="290" height="42" rx="12" fill="#16a34a"/>
+      <rect x="470" y="288" width="290" height="14" fill="#16a34a"/>
+      <text x="615" y="288" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">co-qa · 问答核心</text>
+      <text x="490" y="330" font-size="13.5" fill="#14532d">聚合:Question(根)/ Answer</text>
+      <text x="490" y="356" font-size="13.5" fill="#14532d">Vote / Comment</text>
+      <text x="490" y="382" font-size="13.5" fill="#14532d">发布语言:co-qa-api</text>
+      <text x="490" y="414" font-size="12.5" fill="#64748b">提问 / 回答 / 投票 / 采纳 / 评论</text>
+      <text x="490" y="438" font-size="12.5" fill="#64748b">事件的唯一业务源头</text>
+    </g>
+
+    <!-- reputation -->
+    <g>
+      <rect x="830" y="260" width="290" height="210" rx="12" fill="#fffbeb" stroke="#d97706" stroke-width="2.5"/>
+      <rect x="830" y="260" width="290" height="42" rx="12" fill="#d97706"/>
+      <rect x="830" y="288" width="290" height="14" fill="#d97706"/>
+      <text x="975" y="288" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">co-reputation · 声誉</text>
+      <text x="850" y="330" font-size="13.5" fill="#78350f">聚合:ReputationAccount / Bounty</text>
+      <text x="850" y="356" font-size="13.5" fill="#78350f">BadgeAward</text>
+      <text x="850" y="382" font-size="13.5" fill="#78350f">发布语言:co-reputation-api</text>
+      <text x="850" y="414" font-size="12.5" fill="#64748b">账本 / 徽章 / 悬赏 / 排行榜</text>
+      <text x="850" y="438" font-size="12.5" fill="#64748b">下游订阅,不回调上游写操作</text>
+    </g>
+
+    <!-- discovery -->
+    <g>
+      <rect x="1190" y="260" width="290" height="210" rx="12" fill="#faf5ff" stroke="#9333ea" stroke-width="2.5"/>
+      <rect x="1190" y="260" width="290" height="42" rx="12" fill="#9333ea"/>
+      <rect x="1190" y="288" width="290" height="14" fill="#9333ea"/>
+      <text x="1335" y="288" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">co-discovery · 发现</text>
+      <text x="1210" y="330" font-size="13.5" fill="#3b0764">聚合:SearchDocument / Notification</text>
+      <text x="1210" y="356" font-size="13.5" fill="#3b0764">RelatedQuestionPolicy</text>
+      <text x="1210" y="382" font-size="13.5" fill="#3b0764">纯下游:事件投影(ACL)</text>
+      <text x="1210" y="414" font-size="12.5" fill="#64748b">全文搜索 / 相关推荐</text>
+      <text x="1210" y="438" font-size="12.5" fill="#64748b">通知中心(幂等消费)</text>
+    </g>
+
+    <!-- ④ identity → reputation 集成事件 -->
+    <path d="M 255 260 V 180 H 975 V 260" fill="none" stroke="#15803d" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arr-dash)"/>
+    <circle cx="615" cy="162" r="12" fill="#15803d"/>
+    <text x="615" y="167" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">④</text>
+    <text x="628" y="168" font-size="13" fill="#15803d">集成事件:UserRegistered → 开户(教师 +1000 悬赏积分)</text>
+
+    <!-- ③ qa → discovery 事件投影 -->
+    <path d="M 615 260 V 230 H 1335 V 260" fill="none" stroke="#15803d" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arr-dash)"/>
+    <circle cx="975" cy="211" r="12" fill="#15803d"/>
+    <text x="975" y="216" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">③</text>
+    <text x="988" y="217" font-size="13" fill="#15803d">事件投影(防腐层 ACL):QuestionPosted/Edited/ContentDeleted 等 → 搜索文档与通知</text>
+
+    <!-- ① identity → qa 客户-供应商 -->
+    <line x1="400" y1="360" x2="470" y2="360" stroke="#1e40af" stroke-width="3" marker-end="url(#arr-solid)"/>
+    <circle cx="435" cy="360" r="12" fill="#1e40af"/>
+    <text x="435" y="365" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">①</text>
+
+    <!-- ② qa → reputation 客户-供应商 + 集成事件 -->
+    <line x1="760" y1="360" x2="830" y2="360" stroke="#1e40af" stroke-width="3" marker-end="url(#arr-solid)"/>
+    <circle cx="795" cy="360" r="12" fill="#1e40af"/>
+    <text x="795" y="365" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">②</text>
+
+    <!-- ⑤ reputation → discovery 集成事件 -->
+    <line x1="1120" y1="330" x2="1190" y2="330" stroke="#15803d" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arr-dash)"/>
+    <circle cx="1155" cy="311" r="12" fill="#15803d"/>
+    <text x="1155" y="316" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">⑤</text>
+    <text x="1155" y="300" font-size="12" fill="#15803d" text-anchor="middle">BadgeAwarded / ReputationChanged</text>
+
+    <!-- bootstrap 组合根 -->
+    <g>
+      <rect x="470" y="640" width="660" height="120" rx="12" fill="#f8fafc" stroke="#334155" stroke-width="2.5"/>
+      <text x="800" y="676" font-size="17" font-weight="700" fill="#0f172a" text-anchor="middle">co-bootstrap(组合根)⑦</text>
+      <text x="800" y="702" font-size="13" fill="#475569" text-anchor="middle">Spring 装配 · 安全过滤链(会话 + CSRF)· OutboxRelay 发件箱中继 · 定时任务</text>
+      <text x="800" y="726" font-size="12.5" fill="#64748b" text-anchor="middle">依赖全部上下文,不含业务逻辑</text>
+    </g>
+
+    <!-- ⑦ bootstrap → 各上下文(装配) -->
+    <line x1="800" y1="640" x2="255" y2="470" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="800" y1="640" x2="615" y2="470" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="800" y1="640" x2="975" y2="470" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="800" y1="640" x2="1335" y2="470" stroke="#94a3b8" stroke-width="1.5"/>
+  </svg>
+
+  <table class="legend-table">
+    <tr><th style="width:56px">编号</th><th style="width:150px">双方</th><th style="width:210px">模式</th><th>说明</th></tr>
+    <tr><td class="num">①</td><td>co-identity → co-qa</td><td>客户-供应商 + 发布语言</td><td>co-qa 是客户(下游),只通过 co-identity-api 模块(发布语言)查询用户/课程/课程角色;禁止直连 Identity 持久化表</td></tr>
+    <tr><td class="num">②</td><td>co-qa → co-reputation</td><td>客户-供应商 + 集成事件</td><td>Reputation 订阅 Q&amp;A 的 VoteCast/AnswerAccepted/AnswerEndorsed 等事件记账与发徽章;需上下文信息时仅经 co-qa-api 查询</td></tr>
+    <tr><td class="num">③</td><td>co-qa → co-discovery</td><td>事件投影 + 防腐层(ACL)</td><td>Discovery 是纯下游:在防腐层(SearchIndexProjector/NotificationProjector)把 Q&amp;A 事件翻译为搜索文档与通知,不经 Q&amp;A 任何查询接口</td></tr>
+    <tr><td class="num">④</td><td>co-identity → co-reputation</td><td>集成事件(事件驱动)</td><td>订阅 UserRegisteredEvent 为新用户开户,教师角色发放 1000 悬赏积分;双方无同步调用</td></tr>
+    <tr><td class="num">⑤</td><td>co-reputation → co-discovery</td><td>集成事件(事件驱动)</td><td>订阅 BadgeAwardedEvent(徽章通知)与 ReputationChangedEvent(可选),仅做通知投影</td></tr>
+    <tr><td class="num">⑥</td><td>全部上下文 ↔ co-shared-kernel</td><td>共享内核(SK)</td><td>共享领域异常体系、分页模型、事件契约基类;变更必须经全团队评审</td></tr>
+    <tr><td class="num">⑦</td><td>co-bootstrap → 全部上下文</td><td>组合根</td><td>装配全部模块:Spring 装配、安全过滤链、OutboxRelay、定时任务;不包含业务逻辑</td></tr>
+  </table>
+
+  <div class="note">
+    <b>边界规则(由 ArchUnit 强制):</b>① 跨上下文调用只能经对方 -api 模块或集成事件;② Q&amp;A 是事件唯一业务源头,下游故障不影响主流程(发件箱最终一致);③ 下游不回调上游写操作;④ 共享内核只放最小集合。
+    <b>图例:</b>实线箭头 = 依赖方向(箭头指向被依赖方)· 虚线箭头 = 集成事件订阅 · 灰色细线 = 组合根装配。
+  </div>
+</body>
+</html>

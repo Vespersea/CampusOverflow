@@ -22,17 +22,14 @@ public class ReputationApiImpl implements ReputationApi {
 
     @Override
     public ReputationSummary summary(long userId) {
-        ReputationAccount account = accounts.findByUserId(userId)
-                .orElseGet(() -> ReputationAccount.open(userId, 0));
-        return new ReputationSummary(userId, account.reputation());
+        return accounts.findByUserId(userId)
+                .map(a -> new ReputationSummary(userId, a.reputation()))
+                .orElse(new ReputationSummary(userId, 0));
     }
 
     @Override
     public Map<Long, Integer> reputations(Collection<Long> userIds) {
-        Map<Long, Integer> result = accounts.findAllByUserId(userIds).stream()
+        return accounts.findAllByUserId(userIds).stream()
                 .collect(Collectors.toMap(ReputationAccount::userId, ReputationAccount::reputation));
-        // 尚未开立账户的用户按 0 分补齐，避免调用方 NPE
-        userIds.forEach(id -> result.putIfAbsent(id, 0));
-        return result;
     }
 }

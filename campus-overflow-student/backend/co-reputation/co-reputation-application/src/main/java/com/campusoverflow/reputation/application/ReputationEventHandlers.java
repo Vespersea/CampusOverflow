@@ -13,9 +13,7 @@ import com.campusoverflow.reputation.domain.ReputationAccountRepository;
 import com.campusoverflow.reputation.domain.ReputationReason;
 import com.campusoverflow.reputation.domain.ReputationRulebook;
 import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,9 +46,10 @@ public class ReputationEventHandlers {
     @EventListener
     @Transactional
     public void on(UserRegisteredEvent e) {
-        // 幂等：账户已存在（事件重复投递）则跳过
-        accounts.findByUserId(e.userId()).orElseGet(() -> accounts.save(
-                ReputationAccount.open(e.userId(), ReputationRulebook.initialPoints(e.role()))));
+        if (accounts.findByUserId(e.userId()).isPresent()) {
+            return;
+        }
+        accounts.save(ReputationAccount.open(e.userId(), ReputationRulebook.initialPoints(e.role())));
     }
 
     /** 场景 R-2 的异步后半段：采纳 → 回答者 +15 → 徽章 → 悬赏结算。 */
@@ -58,14 +57,11 @@ public class ReputationEventHandlers {
     @Transactional
     public void on(AnswerAcceptedEvent e) {
         int delta = ReputationRulebook.acceptedDelta(e.answerAuthorId(), e.questionAuthorId());
-        if (delta != 0) {
-            ledgerService.record(e.answerAuthorId(), e.eventId(), ReputationReason.ANSWER_ACCEPTED, delta,
-                    "ANSWER", e.answerId());
-        }
-        // 徽章：按累计被采纳数授予（grant 幂等，重复事件不会重复发）
-        long acceptedCount = ledger.countByUserAndReason(e.answerAuthorId(), ReputationReason.ANSWER_ACCEPTED);
-        BadgePolicy.forAcceptedCount(acceptedCount).forEach(b -> badges.grant(e.answerAuthorId(), b));
-        // 悬赏结算：有悬赏则发放给获奖者；发起人自答则关闭退款
+        ledgerService.record(e.answerAuthorId(), e.eventId(), ReputationReason.ANSWER_ACCEPTED, delta, "ANSWER",
+                e.answerId());
+        // 徽章按累计采纳数授予（grant 幂等，重复投递安全）
+        BadgePolicy.forAcceptedCount(ledger.countByUserAndReason(e.answerAuthorId(), ReputationReason.ANSWER_ACCEPTED))
+                .forEach(type -> badges.grant(e.answerAuthorId(), type));
         bounties.settleOnAccept(e.questionId(), e.answerId(), e.answerAuthorId(), e.eventId());
     }
 
@@ -77,14 +73,15 @@ public class ReputationEventHandlers {
             return;
         }
         ReputationReason reason = "QUESTION".equals(e.targetType())
-                ? ReputationReason.QUESTION_VOTE : ReputationReason.ANSWER_VOTE;
-        int applied = delta;
+                ? ReputationReason.QUESTION_VOTE
+                : ReputationReason.ANSWER_VOTE;
         if (delta > 0) {
-            Instant since = LocalDate.now(clock).atStartOfDay(ZoneOffset.UTC).toInstant();
-            int gainedToday = ledger.sumPositiveVoteDeltaSince(e.targetAuthorId(), since);
-            applied = ReputationRulebook.applyDailyCap(delta, gainedToday);
+            // 反作弊：每个 UTC 自然日因被投票获得的正向声誉最多 200
+            int gainedToday = ledger.sumPositiveVoteDeltaSince(e.targetAuthorId(),
+                    e.occurredAt().truncatedTo(ChronoUnit.DAYS));
+            delta = ReputationRulebook.applyDailyCap(delta, gainedToday);
         }
-        ledgerService.record(e.targetAuthorId(), e.eventId(), reason, applied, e.targetType(), e.targetId());
+        ledgerService.record(e.targetAuthorId(), e.eventId(), reason, delta, e.targetType(), e.targetId());
     }
 
     @EventListener
