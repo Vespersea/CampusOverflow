@@ -4,22 +4,22 @@
 
 ## 1. 团队信息
 
-| 项 | 内容 |
-| --- | --- |
-| 团队名 | 六边形小队（Hexagon Squad） |
+| 项 | 内容                    |
+| --- |-----------------------|
+| 团队名 | 六边形小队（Hexagon Squad）  |
 | 项目名 | CampusOverflow 校园问答平台 |
-| 团队人数 | 4 人 |
-| 章程版本 | v1.0 |
-| 生效日期 | 第 5 教学周 |
+| 团队人数 | 4 人                   |
+| 章程版本 | v1.1                  |
+| 生效日期 | 第 5 教学周               |
 
 ## 2. 成员与角色
 
 | 昵称 | 姓名 | 角色 | 主要职责 |
-| --- | --- | --- | --- |
-| zhangsan | 张三 | PO（Product Owner） | 需求梳理、Product Backlog 优先级、Gherkin 验收标准、Sprint Review 验收 |
-| lisi | 李四 | SM（Scrum Master） | 站会/计划会/回顾会组织、CI 维护、DoD 检查、消除障碍 |
-| wangwu | 王五 | Developer | co-qa 问答核心上下文、co-bootstrap 装配与安全、ArchUnit 约束 |
-| zhaoliu | 赵六 | Developer + QA | co-reputation 声誉上下文、co-discovery 发现上下文、Testcontainers 集成测试、覆盖率门禁 |
+|  | --- | --- | --- |
+| caijinli | 蔡锦莉 | PO（Product Owner） | 需求梳理、Product Backlog 优先级、Gherkin 验收标准、Sprint Review 验收 |
+| zhangyuxin | 张玉馨 | SM（Scrum Master） | 站会/计划会/回顾会组织、CI 维护、DoD 检查、消除障碍 |
+| tangying | 唐颖 | Developer | co-qa 问答核心上下文、co-bootstrap 装配与安全、ArchUnit 约束 |
+| wuchaoyang | 吴超阳 | Developer + QA | co-reputation 声誉上下文、co-discovery 发现上下文、Testcontainers 集成测试、覆盖率门禁 |
 
 ## 3. 团队价值观
 
