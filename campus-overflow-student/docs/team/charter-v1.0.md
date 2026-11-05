@@ -83,11 +83,11 @@ type 仅限：`feat` / `fix` / `docs` / `test` / `refactor` / `chore`。
 
 ## 7. 签署区
 
-本团队成员通过各自在 `main` 分支上的 commit 签署本章程（每位成员以 `chore(charter): 签署团队章程 v1.0` 提交一次空变更即视为签署）。
+本团队成员通过各自在 `main` 分支上的 commit 签署本章程（每位成员以 `chore(charter): 签署团队章程 v1.1` 提交一次空变更即视为签署）。
 
-| 成员 | 角色 | 签署方式 |
-| --- | --- | --- |
-| 张三（zhangsan） | PO | commit 签名 |
-| 李四（lisi） | SM | commit 签名 |
-| 王五（wangwu） | Developer | commit 签名 |
-| 赵六（zhaoliu） | Developer + QA | commit 签名 |
+| 成员    | 角色 | 签署方式 |
+|-------| --- | --- |
+| 蔡锦莉（caijinli） | PO | commit 签名 |
+| 张玉馨（zhangyuxin） | SM | commit 签名 |
+| 唐颖（tangying） | Developer | commit 签名 |
+| 吴超阳（wuchaoyang） | Developer + QA | commit 签名 |
