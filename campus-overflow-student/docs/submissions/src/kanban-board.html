@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>CampusOverflow Sprint 看板</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; }
+  body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: #f6f8fa; color: #1f2328; }
+  .topbar {
+    background: #24292f; color: #fff; padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar .title { font-size: 19px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .topbar .title .logo { font-size: 22px; }
+  .topbar .sub { font-size: 13px; color: #8b949e; }
+  .topbar .right { display: flex; align-items: center; gap: 8px; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding: 20px 24px; }
+  .column { background: #eef1f4; border-radius: 10px; padding: 12px; min-height: 760px; }
+  .col-head { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 10px; font-weight: 700; font-size: 15px; }
+  .col-head .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; margin-right: 8px; }
+  .col-head .count { background: #d5dae0; color: #57606a; border-radius: 12px; font-size: 12px; padding: 1px 9px; }
+  .card { background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; box-shadow: 0 1px 1px rgba(31,35,40,.06); }
+  .card .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .card .id { font-size: 11px; font-weight: 700; color: #0969da; background: #ddf4ff; border-radius: 4px; padding: 1px 6px; }
+  .card .sp { font-size: 11px; color: #57606a; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px; padding: 1px 7px; }
+  .card .title { font-size: 14px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+  .card.task .title { font-weight: 500; font-size: 13.5px; }
+  .card .bottom { display: flex; justify-content: space-between; align-items: center; }
+  .card .est { font-size: 11px; color: #6e7781; }
+  .assignee { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #57606a; }
+  .avatar.sm { width: 22px; height: 22px; font-size: 10px; }
+  .footer { padding: 0 24px 22px; font-size: 12.5px; color: #57606a; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div>
+      <div class="title"><span class="logo">📌</span> CampusOverflow · Sprint 1 看板 <span class="sub">| 六边形小队(Hexagon Squad)</span></div>
+      <div class="sub" style="margin-top:3px">Sprint 1(第 5–6 教学周)· 目标:打通 Walking Skeleton「注册 → 浏览问题列表 → 发布问题 → 提交回答」· 承诺 4 故事 + 1 拉伸,共 15 SP</div>
+    </div>
+    <div class="right">
+      <span class="avatar" style="background:#8250df">张</span>
+      <span class="avatar" style="background:#0969da">李</span>
+      <span class="avatar" style="background:#1a7f37">王</span>
+      <span class="avatar" style="background:#bc4c00">赵</span>
+    </div>
+  </div>
+
+  <div class="board">
+    <!-- To Do -->
+    <div class="column">
+      <div class="col-head"><span><span class="dot" style="background:#d0d7de"></span>To Do</span><span class="count">6</span></div>
+      <div class="card">
+        <div class="top"><span class="id">US-02</span><span class="sp">3 SP · 拉伸</span></div>
+        <div class="title">登录与会话保持(学号/工号 + 密码,Redis 服务端会话,ADR-003)</div>
+        <div class="bottom"><span class="est">验收:US-02.feature</span><span class="assignee"><span class="avatar sm" style="background:#1a7f37">王</span>wangwu</span></div>
+      </div>
+      <div class="card">
+        <div class="top"><span class="id">US-04</span><span class="sp">5 SP</span></div>
+        <div class="title">发布问题(标题 / Markdown 正文 / 1–5 标签 / 可选关联课程)</div>
+        <div class="bottom"><span class="est">验收:US-04.feature</span><span class="assignee"><span class="avatar sm" style="background:#8250df">张</span>zhangsan</span></div>
+      </div>
+      <div class="card task">
+        <div class="top"><span class="id">TASK</span><span class="sp">0.5 d</span></div>
+        <div class="title">CSRF 令牌(GET /api/v1/auth/csrf)与登录限流(1 分钟锁定)</div>
+        <div class="bottom"><span class="est">US-02 拆分</span><span class="assignee"><span class="avatar sm" style="background:#1a7f37">王</span>wangwu</span></div>
+      </div>
+      <div class="card task">
+        <div class="top"><span class="id">TASK</span><span class="sp">0.5 d</span></div>
+        <div class="title">/api/v1/auth/me 与前端对接</div>
+        <div class="bottom"><span class="est">US-02 拆分</span><span class="assignee"><span class="avatar sm" style="background:#8250df">张</span>zhangsan</span></div>
+      </div>
+      <div class="card task">
+        <div class="top"><span class="id">TASK</span><span class="sp">0.5 d</span></div>
+        <div class="title">富文本安全:Markdown 渲染 + OWASP 消毒与测试</div>
+        <div class="bottom"><span class="est">US-04 拆分</span><span class="assignee"><span class="avatar sm" style="background:#8250df">张</span>zhangsan</span></div>
+      </div>
+      <div class="card task">
+        <div class="top"><span class="id">TASK</span><span class="sp">1 d</span></div>
+        <div class="title">问题详情查询视图(含回答列表)</div>
+        <div class="bottom"><span class="est">US-05 拆分</span><span class="assignee"><span class="avatar sm" style="background:#1a7f37">王</span>wangwu</span></div>
+      </div>
+    </div>
+
+    <!-- In Progress -->
+    <div class="column">
+      <div class="col-head"><span><span class="dot" style="background:#1a7f37"></span>In Progress</span><span class="count">4</span></div>
+      <div class="card">
+        <div class="top"><span class="id">US-01</span><span class="sp">3 SP</span></div>
+        <div class="title">学生注册(学号 / 昵称 / 邮箱 / 密码 / 学院 / 班级)</div>
+        <div class="bottom"><span class="est">验收:US-01.feature</span><span class="assignee"><span class="avatar sm" style="background:#1a7f37">王</span>wangwu</span></div>
+      </div>
+      <div class="card">
+        <div class="top"><span class="id">US-03</span><span class="sp">5 SP</span></div>
+        <div class="title">浏览问题列表与筛选(按课程 / 标签 / 分页)</div>
+        <div class="bottom"><span class="est">验收:US-03.feature</span><span class="assignee"><span class="avatar sm" style="background:#1a7f37">王</span>wangwu</span></div>
+      </div>
+      <div class="card task">
+        <div class="top"><span class="id">TASK</span><span class="sp">1 d</span></div>
+        <div class="title">co-qa-domain:Question 聚合与 QuestionRepository 仓储接口</div>
+        <div class="bottom"><span class="est">US-03 拆分</span><span class="assignee"><span class="avatar sm" style="background:#1a7f37">王</span>wangwu</span></div>
+      </div>
+      <div class="card task">
+        <div class="top"><span class="id">TASK</span><span class="sp">1 d</span></div>
+        <div class="title">co-qa-infrastructure:JpaQuestionEntity + RepositoryAdapter(软删除查询,ADR-006)</div>
+        <div class="bottom"><span class="est">US-03 拆分</span><span class="assignee"><span class="avatar sm" style="background:#1a7f37">王</span>wangwu</span></div>
+      </div>
+    </div>
+
+    <!-- In Review -->
+    <div class="column">
+      <div class="col-head"><span><span class="dot" style="background:#bc4c00"></span>In Review</span><span class="count">3</span></div>
+      <div class="card">
+        <div class="top"><span class="id">US-05</span><span class="sp">5 SP</span></div>
+        <div class="title">提交回答(Markdown 正文,并发计数原子 UPDATE)</div>
+        <div class="bottom"><span class="est">验收:US-05.feature</span><span class="assignee"><span class="avatar sm" style="background:#1a7f37">王</span>wangwu</span></div>
+      </div>
+      <div class="card task">
+        <div class="top"><span class="id">TASK</span><span class="sp">1 d</span></div>
+        <div class="title">POST /api/v1/questions 命令服务与 QuestionPostedEvent 发布(发件箱同事务写入)</div>
+        <div class="bottom"><span class="est">US-04 拆分</span><span class="assignee"><span class="avatar sm" style="background:#1a7f37">王</span>wangwu</span></div>
+      </div>
+      <div class="card task">
+        <div class="top"><span class="id">TASK</span><span class="sp">0.5 d</span></div>
+        <div class="title">演示数据写入(profile=demo)与分页边界测试</div>
+        <div class="bottom"><span class="est">US-03 拆分</span><span class="assignee"><span class="avatar sm" style="background:#bc4c00">赵</span>zhaoliu</span></div>
+      </div>
+    </div>
+
+    <!-- Done -->
+    <div class="column">
+      <div class="col-head"><span><span class="dot" style="background:#8250df"></span>Done</span><span class="count">2</span></div>
+      <div class="card task">
+        <div class="top"><span class="id">TASK</span><span class="sp">0.5 d</span></div>
+        <div class="title">co-identity-domain:User 聚合 + PasswordPolicy / PasswordHasher 值对象与单测</div>
+        <div class="bottom"><span class="est">US-01 拆分 · ✅</span><span class="assignee"><span class="avatar sm" style="background:#1a7f37">王</span>wangwu</span></div>
+      </div>
+      <div class="card task">
+        <div class="top"><span class="id">TASK</span><span class="sp">0.5 d</span></div>
+        <div class="title">密码哈希与唯一性冲突(ID-2xxx)错误映射、集成测试</div>
+        <div class="bottom"><span class="est">US-01 拆分 · ✅</span><span class="assignee"><span class="avatar sm" style="background:#bc4c00">赵</span>zhaoliu</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">📋 看板数据源自 docs/backlog/sprint-1-backlog.md(任务拆分与分配)。故事卡 5 张(US-01/02/03/04/05)+ 任务卡 10 张;全队 4 人,角色:zhangsan(PO)/ lisi(SM)/ wangwu(Dev)/ zhaoliu(Dev+QA)。</div>
+</body>
+</html>
