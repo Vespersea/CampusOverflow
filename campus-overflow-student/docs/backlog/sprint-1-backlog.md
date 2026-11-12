@@ -11,56 +11,56 @@
 
 ## 2. 承诺的故事
 
-| 故事 | 标题 | SP | 负责人 | 验收标准（Gherkin） |
-| --- | --- | --- | --- | --- |
-| US-01 | 学生注册 | 3 | wangwu | docs/backlog/stories/US-01.feature |
-| US-03 | 浏览问题列表与筛选 | 5 | wangwu | docs/backlog/stories/US-03.feature |
-| US-04 | 发布问题 | 5 | zhangsan（PO 兼任开发） | docs/backlog/stories/US-04.feature |
-| US-05 | 提交回答 | 5 | wangwu | docs/backlog/stories/US-05.feature |
-| US-02（拉伸） | 登录与会话保持 | 3 | wangwu | docs/backlog/stories/US-02.feature |
+| 故事 | 标题 | SP | 负责人               | 验收标准（Gherkin） |
+| --- | --- | --- |-------------------| --- |
+| US-01 | 学生注册 | 3 | wuchaoyang        | docs/backlog/stories/US-01.feature |
+| US-03 | 浏览问题列表与筛选 | 5 | tangying          | docs/backlog/stories/US-03.feature |
+| US-04 | 发布问题 | 5 | caijinli（PO 兼任开发） | docs/backlog/stories/US-04.feature |
+| US-05 | 提交回答 | 5 | tangying          | docs/backlog/stories/US-05.feature |
+| US-02（拉伸） | 登录与会话保持 | 3 | zhangyuxin        | docs/backlog/stories/US-02.feature |
 
 ## 3. 任务拆分
 
-### US-01 学生注册（3 SP，负责人 wangwu，验收见 US-01.feature）
+### US-01 学生注册（3 SP，负责人 wuchaoyang，验收见 US-01.feature）
+
+| 任务 | 估算 | 负责人        |
+| --- | --- |------------|
+| co-identity-domain：User 聚合 + PasswordPolicy/PasswordHasher 值对象与单测 | 0.5 d | wuchaoyang |
+| co-identity-application/interfaces：注册命令服务 + `POST /api/v1/auth/register`（返回 201 与 id） | 0.5 d | wuchaoyang |
+| 密码哈希与唯一性冲突（ID-2xxx）错误映射、集成测试（Testcontainers） | 0.5 d | wuchaoyang |
+
+### US-03 浏览问题列表与筛选（5 SP，负责人 tangying，验收见 US-03.feature）
 
 | 任务 | 估算 | 负责人 |
 | --- | --- | --- |
-| co-identity-domain：User 聚合 + PasswordPolicy/PasswordHasher 值对象与单测 | 0.5 d | wangwu |
-| co-identity-application/interfaces：注册命令服务 + `POST /api/v1/auth/register`（返回 201 与 id） | 0.5 d | wangwu |
-| 密码哈希与唯一性冲突（ID-2xxx）错误映射、集成测试（Testcontainers） | 0.5 d | zhaoliu |
+| co-qa-domain：Question 聚合与 QuestionRepository 仓储接口 | 1 d | tangying |
+| co-qa-infrastructure：JpaQuestionEntity + RepositoryAdapter（含软删除查询，ADR-006） | 1 d | tangying |
+| co-qa-interfaces：`GET /api/v1/questions?courseId=&page=&size=`，分页结构 {items,total,page,size} | 0.5 d | tangying |
+| 演示数据写入（profile=demo）与分页边界测试 | 0.5 d | tangying |
 
-### US-03 浏览问题列表与筛选（5 SP，负责人 wangwu，验收见 US-03.feature）
-
-| 任务 | 估算 | 负责人 |
-| --- | --- | --- |
-| co-qa-domain：Question 聚合与 QuestionRepository 仓储接口 | 1 d | wangwu |
-| co-qa-infrastructure：JpaQuestionEntity + RepositoryAdapter（含软删除查询，ADR-006） | 1 d | wangwu |
-| co-qa-interfaces：`GET /api/v1/questions?courseId=&page=&size=`，分页结构 {items,total,page,size} | 0.5 d | zhaoliu |
-| 演示数据写入（profile=demo）与分页边界测试 | 0.5 d | zhaoliu |
-
-### US-04 发布问题（5 SP，负责人 zhangsan，验收见 US-04.feature）
+### US-04 发布问题（5 SP，负责人 caijinli，验收见 US-04.feature）
 
 | 任务 | 估算 | 负责人 |
 | --- | --- | --- |
-| 值对象 Title（10–150 字符）/MarkdownBody（1–30000）/Tags（1–5 个，TagName 规则）与单测 | 1 d | zhangsan |
-| `POST /api/v1/questions` 命令服务与 QuestionPostedEvent 发布（发件箱同事务写入） | 1 d | wangwu |
-| 富文本安全（Markdown 渲染 + OWASP 消毒）与契约生成（springdoc） | 0.5 d | zhangsan |
+| 值对象 Title（10–150 字符）/MarkdownBody（1–30000）/Tags（1–5 个，TagName 规则）与单测 | 1 d | caijinli        |
+| `POST /api/v1/questions` 命令服务与 QuestionPostedEvent 发布（发件箱同事务写入） | 1 d | caijinli        |
+| 富文本安全（Markdown 渲染 + OWASP 消毒）与契约生成（springdoc） | 0.5 d | caijinli        |
 
-### US-05 提交回答（5 SP，负责人 wangwu，验收见 US-05.feature）
-
-| 任务 | 估算 | 负责人 |
-| --- | --- | --- |
-| Answer 实体挂入 Question 聚合，`POST /api/v1/questions/{id}/answers` | 1 d | wangwu |
-| 问题详情查询视图（含回答列表） | 1 d | wangwu |
-| 并发计数（回答数由原子 UPDATE 维护，ADR-008）与边界测试 | 0.5 d | zhaoliu |
-
-### US-02 登录（拉伸，3 SP，负责人 wangwu，验收见 US-02.feature）
+### US-05 提交回答（5 SP，负责人 tangying，验收见 US-05.feature）
 
 | 任务 | 估算 | 负责人 |
 | --- | --- | --- |
-| `POST /api/v1/auth/login`（学号/工号 + 密码，Redis 服务端会话，ADR-003） | 0.5 d | wangwu |
-| CSRF 令牌（`GET /api/v1/auth/csrf`）与登录限流（1 分钟锁定） | 0.5 d | wangwu |
-| `/api/v1/auth/me` 与前端对接 | 0.5 d | zhangsan |
+| Answer 实体挂入 Question 聚合，`POST /api/v1/questions/{id}/answers` | 1 d | tangying        |
+| 问题详情查询视图（含回答列表） | 1 d | tangying        |
+| 并发计数（回答数由原子 UPDATE 维护，ADR-008）与边界测试 | 0.5 d | tangying        |
+
+### US-02 登录（拉伸，3 SP，负责人 zhangyuxin，验收见 US-02.feature）
+
+| 任务 | 估算 | 负责人 |
+| --- | --- | --- |
+| `POST /api/v1/auth/login`（学号/工号 + 密码，Redis 服务端会话，ADR-003） | 0.5 d | zhangyuxin        |
+| CSRF 令牌（`GET /api/v1/auth/csrf`）与登录限流（1 分钟锁定） | 0.5 d | zhangyuxin        |
+| `/api/v1/auth/me` 与前端对接 | 0.5 d | zhangyuxin        |
 
 ## 4. Sprint 1 完成定义（DoD 摘要）
 
