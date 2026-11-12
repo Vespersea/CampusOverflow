@@ -1,6 +1,6 @@
 # CampusOverflow 用户故事地图（Story Map）
 
-> 版本：v1.0 ｜ 维护人：张三（PO）
+> 版本：v1.0 ｜ 维护人：蔡锦莉（PO）
 > 横轴（Backbone）按"用户从注册到成为活跃贡献者"的时间线组织；纵轴自顶向下按"不可或缺 → 锦上添花"排列（越靠上越接近 Walking Skeleton）。
 > 标记 🚶 的为 Walking Skeleton（Sprint 1 MVP）切片。
 
