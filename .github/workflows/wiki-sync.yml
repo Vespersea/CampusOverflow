@@ -1,0 +1,59 @@
+# 把仓库里的 wiki/*.md 同步到 GitHub Wiki
+# 前置：Settings -> Secrets and variables -> Actions 添加 WIKI_TOKEN
+#      （classic PAT，勾选 repo 权限；内置 GITHUB_TOKEN 无权推送 wiki 仓库）
+name: Wiki Sync
+
+on:
+  push:
+    branches: ['**']
+    paths: ['wiki/**']
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    name: 同步到 GitHub Wiki
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: wiki
+
+      - name: 推送 wiki 目录
+        env:
+          TOKEN: ${{ secrets.WIKI_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ -z "${TOKEN:-}" ]; then
+            echo "::warning::未配置 secrets.WIKI_TOKEN，本次跳过同步"
+            exit 0
+          fi
+          WIKI_URL="https://x-access-token:${TOKEN}@github.com/${REPO}.wiki.git"
+          rm -rf /tmp/wiki-repo
+          if git clone --quiet "$WIKI_URL" /tmp/wiki-repo 2>/dev/null; then
+            echo "已克隆现有 wiki"
+          else
+            echo "wiki 尚为空仓库，初始化"
+            git init --quiet /tmp/wiki-repo
+            git -C /tmp/wiki-repo remote add origin "$WIKI_URL"
+            git -C /tmp/wiki-repo checkout --quiet -b master
+          fi
+          rsync -a --delete --exclude '.git' wiki/ /tmp/wiki-repo/
+          cd /tmp/wiki-repo
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "内容无变化，跳过提交"
+            exit 0
+          fi
+          git commit --quiet -m "docs(wiki): 同步自 ${GITHUB_SHA::7}"
+          git push --quiet origin HEAD
+          echo "同步完成"
