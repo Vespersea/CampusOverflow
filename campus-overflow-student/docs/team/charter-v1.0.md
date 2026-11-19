@@ -14,12 +14,14 @@
 
 ## 2. 成员与角色
 
-| 昵称 | 姓名 | 角色 | 主要职责 |
-|  | --- | --- | --- |
-| caijinli | 蔡锦莉 | PO（Product Owner） | 需求梳理、Product Backlog 优先级、Gherkin 验收标准、Sprint Review 验收 |
-| zhangyuxin | 张玉馨 | SM（Scrum Master） | 站会/计划会/回顾会组织、CI 维护、DoD 检查、消除障碍 |
-| tangying | 唐颖 | Developer | co-qa 问答核心上下文、co-bootstrap 装配与安全、ArchUnit 约束 |
-| wuchaoyang | 吴超阳 | Developer + QA | co-reputation 声誉上下文、co-discovery 发现上下文、Testcontainers 集成测试、覆盖率门禁 |
+| 昵称 | 姓名 | 角色 | GitHub 账号 | 主要职责 |
+| --- | --- | --- | --- | --- |
+| caijinli | 蔡锦莉 | PO（Product Owner） | Vespersea | 需求梳理、Product Backlog 优先级、Gherkin 验收标准、Sprint Review 验收 |
+| zhangyuxin | 张玉馨 | SM（Scrum Master） | zyxd336 | 站会/计划会/回顾会组织、CI 维护、DoD 检查、消除障碍 |
+| tangying | 唐颖 | Developer | ty666-lang | co-qa 问答核心上下文、co-bootstrap 装配与安全、ArchUnit 约束 |
+| wuchaoyang | 吴超阳 | Developer + QA | youngbv | co-reputation 声誉上下文、co-discovery 发现上下文、Testcontainers 集成测试、覆盖率门禁 |
+
+> GitHub 账号栏以仓库提交记录（`git log` 的 author）为准。提交记录里出现的账号只有 `Vespersea` / `zyxd336` / `ty666-lang` / `youngbv` 四个，姓名与账号的对应请四人各核对一遍，有误当日在群内修正。
 
 ## 3. 团队价值观
 

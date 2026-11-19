@@ -29,7 +29,7 @@
 | 1 | 用户故事地图 PNG / PDF | 🖼️ | `lab2-story-map.png`(6 阶段 × 5 层,标注 Walking Skeleton) |
 | 2 | Product Backlog Markdown 表格 | ✅ | `docs/backlog/product-backlog.md`(22 条:ID/描述/优先级/SP/INVEST 自评) |
 | 3 | ≥8 条 Gherkin 验收标准文件 | ✅ | `docs/backlog/stories/US-01~US-10.feature`(10 个,每个 ≥3 场景) |
-| 4 | Sprint 1 Backlog 截图(任务已分配到人) | 🖼️ | `lab1-kanban-board.png`(卡上标注负责人 zhangsan/wangwu/zhaoliu) |
+| 4 | Sprint 1 Backlog 截图(任务已分配到人) | 🖼️ | `lab1-kanban-board.png`(卡上标注负责人 caijinli/tangying/wuchaoyang) |
 
 ## Lab 3 领域驱动设计事件风暴
 
