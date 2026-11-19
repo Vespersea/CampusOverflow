@@ -73,6 +73,6 @@
 
 | 风险 | 应对 |
 | --- | --- |
-| 六边形分层样板代码量大（每聚合约 40 行映射） | 由 wangwu 先做出 Question 端到端模板，其余照抄 |
+| 六边形分层样板代码量大（每聚合约 40 行映射） | 由 tangying 先做出 Question 端到端模板，其余照抄 |
 | 团队对 Markdown 渲染安全不熟 | 使用 commonmark + OWASP sanitizer 并写消毒测试 |
-| CSRF/会话调试耗时 | zhaoliu 提前写 Postman 集合（docs/postman/CampusOverflow.postman_collection.json）固化调试脚本 |
+| CSRF/会话调试耗时 | wuchaoyang 提前写 Postman 集合（docs/postman/CampusOverflow.postman_collection.json）固化调试脚本 |
