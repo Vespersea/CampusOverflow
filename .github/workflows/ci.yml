@@ -30,10 +30,10 @@ jobs:
     name: 后端构建与验证
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: 配置 JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: temurin
@@ -46,7 +46,7 @@ jobs:
         run: mvn -B -f backend/pom.xml test
 
       - name: 架构约束检查（ArchUnit FF-1~FF-6）
-        run: mvn -B -f backend/pom.xml test -pl co-bootstrap -Dtest=ArchitectureTest -DfailIfNoTests=false
+        run: mvn -B -f backend/pom.xml test -pl co-bootstrap -am -Dtest=ArchitectureTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false
 
       - name: 覆盖率门禁
         run: mvn -B -f backend/pom.xml verify -DskipITs -Djacoco.skip=false
@@ -66,7 +66,7 @@ jobs:
     name: 前端构建
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -91,7 +91,7 @@ jobs:
     needs: [backend, frontend]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: 构建后端镜像
         run: docker build -f deploy/backend.Dockerfile -t campus-overflow-backend:${{ github.sha }} .
       - name: 构建前端镜像
@@ -103,7 +103,7 @@ jobs:
     needs: [images]
     if: github.event_name == 'push' && vars.DEPLOY_HOST != ''
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: 登录镜像仓库
         run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login "${{ vars.REGISTRY }}" -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
       - name: 推送镜像
